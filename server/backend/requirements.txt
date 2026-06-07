@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+sqlalchemy[asyncio]
+asyncpg
+greenlet
+alembic
+pydantic-settings
+python-multipart
+jinja2

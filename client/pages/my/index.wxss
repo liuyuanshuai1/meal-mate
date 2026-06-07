@@ -1,0 +1,31 @@
+.profile {
+  padding: 56rpx 30rpx 46rpx;
+  display: flex;
+  align-items: center;
+  border-bottom: 1rpx solid #eee0c0;
+}
+.avatar {
+  width: 112rpx;
+  height: 112rpx;
+  border-radius: 56rpx;
+  background: #fffaf0;
+}
+.nickname {
+  margin-left: 24rpx;
+  color: #1f1f1f;
+  font-size: 34rpx;
+  font-weight: 600;
+}
+.menu-list {
+  margin-top: 20rpx;
+}
+.menu-item {
+  height: 96rpx;
+  line-height: 96rpx;
+  padding: 0 34rpx;
+  color: #1f1f1f;
+  font-size: 30rpx;
+  border-bottom: 1rpx solid #eee0c0;
+  background: url(/images/arrow-right.png) no-repeat 700rpx center;
+  background-size: 16rpx auto;
+}

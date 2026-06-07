@@ -1,0 +1,36 @@
+# macOS
+.DS_Store
+._*
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Environment and local secrets
+.env
+.env.*
+!.env.example
+
+# WeChat Mini Program local config
+client/config.js
+client/project.config.json
+client/project.private.config.json
+
+# Server local config and deployment secrets
+server/backend/.env
+server/backend/.env.*
+!server/backend/.env.example
+server/docker-compose.server.yml
+
+# Runtime/generated data
+server/data/
+server/static/
+server/backend/static/uploads/
+
+# Logs
+*.log

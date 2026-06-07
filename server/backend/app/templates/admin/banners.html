@@ -1,0 +1,70 @@
+{% extends "admin/base.html" %}
+
+{% set item = edit_banner %}
+{% block content %}
+<div class="row g-4">
+  <div class="col-lg-4">
+    <form class="form-panel" method="post" action="{% if item %}/admin/banners/{{ item.id }}/update{% else %}/admin/banners{% endif %}">
+      <h2 class="h5 mb-3">{% if item %}编辑 Banner{% else %}新增 Banner{% endif %}</h2>
+      <div class="mb-3">
+        <label class="form-label">标题</label>
+        <input class="form-control" name="title" maxlength="128" value="{{ form.title if form.title is defined else item.title if item and item.title else '' }}">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">图片 URL</label>
+        <input class="form-control" name="image_url" required value="{{ form.image_url if form.image_url is defined else item.image_url if item else '' }}">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">跳转类型</label>
+        {% set current_link_type = form.link_type if form.link_type is defined else item.link_type if item else 'none' %}
+        <select class="form-select" name="link_type">
+          {% for link_type in link_types %}
+            <option value="{{ link_type }}" {% if current_link_type == link_type %}selected{% endif %}>{{ link_type }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">跳转目标</label>
+        <input class="form-control" name="link_target" maxlength="256" value="{{ form.link_target if form.link_target is defined else item.link_target if item and item.link_target else '' }}">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">排序值</label>
+        <input class="form-control" name="sort" type="number" value="{{ form.sort if form.sort is defined else item.sort if item else 0 }}">
+      </div>
+      {% set active_checked = form.is_active if form.is_active is defined else item.is_active if item else true %}
+      <div class="form-check mb-3">
+        <input class="form-check-input" id="is_active" name="is_active" type="checkbox" value="1" {% if active_checked %}checked{% endif %}>
+        <label class="form-check-label" for="is_active">启用</label>
+      </div>
+      <button class="btn btn-primary" type="submit">{% if item %}更新{% else %}保存{% endif %}</button>
+      {% if item %}<a class="btn btn-outline-secondary" href="/admin/banners">取消</a>{% endif %}
+    </form>
+  </div>
+  <div class="col-lg-8">
+    <div class="table-panel">
+      <table class="table table-hover align-middle">
+        <thead><tr><th>ID</th><th>图片</th><th>标题</th><th>跳转类型</th><th>跳转目标</th><th>排序</th><th>启用</th><th>操作</th></tr></thead>
+        <tbody>
+          {% for banner in banners %}
+          <tr>
+            <td>{{ banner.id }}</td>
+            <td><img src="{{ banner.image_url }}" alt="{{ banner.title or banner.image_url }}"></td>
+            <td>{{ banner.title or '-' }}</td>
+            <td>{{ banner.link_type }}</td>
+            <td>{{ banner.link_target or '-' }}</td>
+            <td>{{ banner.sort }}</td>
+            <td>{{ '是' if banner.is_active else '否' }}</td>
+            <td class="d-flex gap-2">
+              <a class="btn btn-sm btn-outline-primary" href="/admin/banners?edit_id={{ banner.id }}">编辑</a>
+              <form method="post" action="/admin/banners/{{ banner.id }}/delete" data-confirm="确认删除这个 Banner？">
+                <button class="btn btn-sm btn-outline-danger" type="submit">删除</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

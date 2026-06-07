@@ -1,0 +1,12 @@
+.DS_Store
+.mypy_cache
+.pytest_cache
+.ruff_cache
+.venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.git
+backend/static/uploads
+static/uploads

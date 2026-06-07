@@ -1,0 +1,85 @@
+{% extends "admin/base.html" %}
+
+{% set item = edit_food %}
+{% block content %}
+<div class="row g-4">
+  <div class="col-lg-4">
+    <form class="form-panel" method="post" enctype="multipart/form-data" action="{% if item %}/admin/foods/{{ item.id }}/update{% else %}/admin/foods{% endif %}">
+      <h2 class="h5 mb-3">{% if item %}编辑菜品{% else %}新增菜品{% endif %}</h2>
+      <div class="mb-3">
+        <label class="form-label">所属分类</label>
+        {% set current_category = form.category_id if form.category_id is defined else item.category_id if item else '' %}
+        <select class="form-select" name="category_id">
+          <option value="">未分类</option>
+          {% for category in categories %}
+            <option value="{{ category.id }}" {% if current_category|string == category.id|string %}selected{% endif %}>{{ category.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">菜品名称</label>
+        <input class="form-control" name="name" maxlength="128" required value="{{ form.name if form.name is defined else item.name if item else '' }}">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">菜品描述</label>
+        <textarea class="form-control" name="description" rows="3">{{ form.description if form.description is defined else item.description if item and item.description else '' }}</textarea>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">图片 URL</label>
+        <input class="form-control" name="image_url" value="{{ form.image_url if form.image_url is defined else item.image_url if item and item.image_url else '' }}">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">图片文件</label>
+        <input class="form-control" name="image_file" type="file" accept="image/jpeg,image/png,image/webp">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">参考价格</label>
+        <input class="form-control" name="price" type="number" min="0" step="0.01" value="{{ form.price if form.price is defined else item.price if item else 0 }}">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">排序值</label>
+        <input class="form-control" name="sort" type="number" value="{{ form.sort if form.sort is defined else item.sort if item else 0 }}">
+      </div>
+      {% set recommended_checked = form.is_recommended if form.is_recommended is defined else item.is_recommended if item else false %}
+      <div class="form-check mb-2">
+        <input class="form-check-input" id="is_recommended" name="is_recommended" type="checkbox" value="1" {% if recommended_checked %}checked{% endif %}>
+        <label class="form-check-label" for="is_recommended">推荐</label>
+      </div>
+      {% set active_checked = form.is_active if form.is_active is defined else item.is_active if item else true %}
+      <div class="form-check mb-3">
+        <input class="form-check-input" id="is_active" name="is_active" type="checkbox" value="1" {% if active_checked %}checked{% endif %}>
+        <label class="form-check-label" for="is_active">上架</label>
+      </div>
+      <button class="btn btn-primary" type="submit">{% if item %}更新{% else %}保存{% endif %}</button>
+      {% if item %}<a class="btn btn-outline-secondary" href="/admin/foods">取消</a>{% endif %}
+    </form>
+  </div>
+  <div class="col-lg-8">
+    <div class="table-panel">
+      <table class="table table-hover align-middle">
+        <thead><tr><th>ID</th><th>图片</th><th>菜品名称</th><th>所属分类</th><th>参考价格</th><th>推荐</th><th>上架</th><th>排序</th><th>操作</th></tr></thead>
+        <tbody>
+          {% for food in foods %}
+          <tr>
+            <td>{{ food.id }}</td>
+            <td>{% if food.image_url %}<img src="{{ food.image_url }}" alt="{{ food.name }}">{% else %}<span class="muted">无</span>{% endif %}</td>
+            <td>{{ food.name }}</td>
+            <td>{{ food.category.name if food.category else '未分类' }}</td>
+            <td>{{ food.price }}</td>
+            <td>{{ '是' if food.is_recommended else '否' }}</td>
+            <td>{{ '是' if food.is_active else '否' }}</td>
+            <td>{{ food.sort }}</td>
+            <td class="d-flex gap-2">
+              <a class="btn btn-sm btn-outline-primary" href="/admin/foods?edit_id={{ food.id }}">编辑</a>
+              <form method="post" action="/admin/foods/{{ food.id }}/delete" data-confirm="确认删除这个菜品？">
+                <button class="btn btn-sm btn-outline-danger" type="submit">删除</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,25 @@
+services:
+  meal-mate-backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    image: meal-mate-backend:1.0.0
+    container_name: meal-mate-backend
+    restart: unless-stopped
+    env_file:
+      - backend/.env
+    ports:
+      - "18080:8000"
+    volumes:
+      - ./backend/static/uploads:/app/backend/static/uploads
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=3).read()\"",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5

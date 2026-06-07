@@ -1,0 +1,30 @@
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="row g-3">
+  <div class="col-md-6">
+    <a class="d-block form-panel text-decoration-none text-dark" href="/admin/categories">
+      <h2 class="h5">菜品分类管理</h2>
+      <p class="mb-0 muted">维护菜单分类</p>
+    </a>
+  </div>
+  <div class="col-md-6">
+    <a class="d-block form-panel text-decoration-none text-dark" href="/admin/foods">
+      <h2 class="h5">菜品管理</h2>
+      <p class="mb-0 muted">维护菜品、图片、推荐和上架状态</p>
+    </a>
+  </div>
+  <div class="col-md-6">
+    <a class="d-block form-panel text-decoration-none text-dark" href="/admin/banners">
+      <h2 class="h5">Banner 管理</h2>
+      <p class="mb-0 muted">维护首页轮播图</p>
+    </a>
+  </div>
+  <div class="col-md-6">
+    <a class="d-block form-panel text-decoration-none text-dark" href="/admin/eat-records">
+      <h2 class="h5">一起吃过记录</h2>
+      <p class="mb-0 muted">查看和删除历史吃饭记录</p>
+    </a>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+<view class="page">
+  <view class="page__bd">
+    <view class="profile">
+      <image class="avatar" src="{{avatarUrl}}" mode="aspectFill"></image>
+      <view class="nickname">{{nickName}}</view>
+    </view>
+    <view class="menu-list">
+      <view class="menu-item" bindtap="goEatRecords">一起吃过</view>
+      <view class="menu-item" bindtap="comingSoon">偏好设置</view>
+      <view class="menu-item" bindtap="comingSoon">不想吃清单</view>
+      <view class="menu-item" bindtap="about">关于我们</view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,45 @@
+<view class="page">
+  <view class="page__bd">
+    <view class="swiper-container" wx:if="{{bannerList.length > 0}}">
+      <swiper class="swiper_box" autoplay="true" bindchange="swiperchange">
+        <block wx:for="{{bannerList}}" wx:key="id">
+          <swiper-item>
+            <image bindtap="tapBanner" data-item="{{item}}" src="{{item.picUrl}}" mode="aspectFill" />
+          </swiper-item>
+        </block>
+      </swiper>
+      <view class="dots">
+        <block wx:for="{{bannerList}}" wx:key="id">
+          <view class="dot{{index == swiperCurrent ? ' active' : ''}}"></view>
+        </block>
+      </view>
+    </view>
+
+    <view class="dinner-entry" bindtap="goDinnerPlan">
+      <view>
+        <view class="entry-title">今晚安排</view>
+        <view class="entry-desc">把想吃的菜先放进今晚菜单</view>
+      </view>
+      <view class="entry-action">去看看</view>
+    </view>
+
+    <view class="recommend-title">今日推荐</view>
+    <view class="empty-text" wx:if="{{goodsRecommend.length === 0}}">今天还没想好吃什么</view>
+    <view class="goods-container" wx:else>
+      <view class="goods-box" wx:for-items="{{goodsRecommend}}" wx:key="id" bindtap="toDetailsTap" data-id="{{item.id}}">
+        <view class="img-box">
+          <image src="{{item.pic}}" class="image" mode="aspectFill" lazy-load="true" />
+        </view>
+        <view class="goods-title">{{item.name}}</view>
+        <view class="goods-price">参考价 ¥ {{item.minPrice}}</view>
+      </view>
+    </view>
+
+    <view class="recent-wrap" wx:if="{{recentFoods.length > 0}}">
+      <view class="recommend-title">最近想吃</view>
+      <view class="recent-list">
+        <view class="recent-item" wx:for="{{recentFoods}}" wx:key="*this">{{item}}</view>
+      </view>
+    </view>
+  </view>
+</view>
