@@ -1,14 +1,14 @@
 # MealMate
 
-MealMate is a WeChat Mini Program plus FastAPI backend for a small meal-ordering/dinner-planning app. The repository is split into:
+MealMate 是一个微信小程序 + FastAPI 后端的点餐 / 晚餐计划项目。仓库结构如下：
 
-- `client/`: native WeChat Mini Program frontend.
-- `server/backend/`: FastAPI API, SQLAlchemy models, Alembic migrations, seed script, and admin pages.
-- `server/docker-compose.yml`: local PostgreSQL/API/Nginx composition.
+- `client/`：原生微信小程序前端。
+- `server/backend/`：FastAPI API、SQLAlchemy 模型、Alembic 迁移、种子脚本和管理页面。
+- `server/docker-compose.yml`：本地 PostgreSQL / API / Nginx 开发编排。
 
-## Configuration
+## 配置说明
 
-This repository is prepared for a public GitHub upload. Real runtime configuration is intentionally ignored. Use the example files as templates:
+本仓库按公开 GitHub 仓库标准整理，真实运行配置不会提交。首次运行前，请基于模板文件创建本地配置：
 
 ```bash
 cp client/config.example.js client/config.js
@@ -17,28 +17,28 @@ cp server/backend/.env.example server/backend/.env
 cp server/docker-compose.server.example.yml server/docker-compose.server.yml
 ```
 
-Do not commit the copied files. They may contain API domains, WeChat app IDs, database URLs, server paths, or deployment secrets.
+请不要提交复制出来的真实配置文件。这些文件可能包含 API 域名、微信小程序 AppID、数据库连接、服务器路径或部署密钥。
 
-## Frontend
+## 小程序前端
 
-Open `client/` with WeChat Developer Tools after creating `client/config.js` and `client/project.config.json`.
+创建 `client/config.js` 和 `client/project.config.json` 后，用微信开发者工具打开 `client/` 目录。
 
-Important frontend config:
+重要配置项：
 
-- `apiBaseUrl`: backend API base URL, for example `http://127.0.0.1:8000/api` in local development.
-- `fixedUserId` and `fixedPerson`: current development placeholders used by the app.
-- `appid`: fill your own WeChat Mini Program app ID in the copied `project.config.json`.
+- `apiBaseUrl`：后端 API 地址。本地开发通常是 `http://127.0.0.1:8000/api`。
+- `fixedUserId`、`fixedPerson`：当前前端流程使用的开发占位值。
+- `appid`：在复制出来的 `project.config.json` 中填写自己的微信小程序 AppID。
 
-## Backend
+## 后端服务
 
-Start the local database from the `server` directory:
+进入 `server` 目录启动本地数据库：
 
 ```bash
 cd server
 docker compose up -d db
 ```
 
-Run migrations and seed data from `server/backend`:
+进入 `server/backend` 执行数据库迁移和初始化数据：
 
 ```bash
 cd server/backend
@@ -46,21 +46,21 @@ alembic upgrade head
 python scripts/seed.py
 ```
 
-Start the API:
+启动 API：
 
 ```bash
 uv run uvicorn app.main:app --reload
 ```
 
-Health check:
+健康检查：
 
 ```bash
 curl http://localhost:8000/api/health
 ```
 
-## Quality Checks
+## 质量检查
 
-From the `server` directory:
+在 `server` 目录执行：
 
 ```bash
 uv run python -m pytest
@@ -68,12 +68,18 @@ uv run python -m mypy backend
 uv run python -m ruff check backend tests
 ```
 
-## Deployment Notes
+在 `client` 目录执行：
 
-Keep real deployment files outside Git:
+```bash
+node --test tests/*.test.js
+```
+
+## 部署说明
+
+真实部署文件请保留在本地或服务器，不要提交到 Git：
 
 - `server/backend/.env`
 - `server/docker-compose.server.yml`
-- uploaded images under `server/static/` and `server/backend/static/uploads/`
+- `server/static/` 和 `server/backend/static/uploads/` 下的上传文件
 
-`server/docker-compose.server.example.yml` documents the expected deployment shape without exposing credentials.
+`server/docker-compose.server.example.yml` 只用于说明部署文件结构，不包含真实凭据。
