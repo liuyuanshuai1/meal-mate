@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.admin_auth import require_admin
 from app.core.database import get_db
 from app.core.response import AppException, ok
 from app.models.food_category import FoodCategory
@@ -25,7 +26,11 @@ async def list_food_categories(
 
 
 @router.post("")
-async def create_food_category(payload: FoodCategoryCreate, db: AsyncSession = Depends(get_db)) -> dict[str, object]:
+async def create_food_category(
+    payload: FoodCategoryCreate,
+    _: None = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, object]:
     category = FoodCategory(**payload.model_dump())
     db.add(category)
     await db.commit()
@@ -37,6 +42,7 @@ async def create_food_category(payload: FoodCategoryCreate, db: AsyncSession = D
 async def update_food_category(
     category_id: int,
     payload: FoodCategoryUpdate,
+    _: None = Depends(require_admin),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, object]:
     category = await db.get(FoodCategory, category_id)
@@ -50,7 +56,11 @@ async def update_food_category(
 
 
 @router.delete("/{category_id}")
-async def delete_food_category(category_id: int, db: AsyncSession = Depends(get_db)) -> dict[str, object]:
+async def delete_food_category(
+    category_id: int,
+    _: None = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, object]:
     category = await db.get(FoodCategory, category_id)
     if category is None:
         raise AppException(40004, "分类不存在")

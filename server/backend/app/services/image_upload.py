@@ -1,3 +1,4 @@
+import asyncio
 from pathlib import Path
 from uuid import uuid4
 
@@ -28,5 +29,5 @@ async def save_upload_image(file: UploadFile) -> str:
     upload_dir.mkdir(parents=True, exist_ok=True)
     filename = f"{uuid4().hex}{suffix}"
     target = upload_dir / filename
-    target.write_bytes(content)
+    await asyncio.to_thread(target.write_bytes, content)
     return f"{settings.public_static_url.rstrip('/')}/{filename}"

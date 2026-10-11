@@ -1,3 +1,34 @@
+[project]
+name = "meal-mate-backend"
+version = "0.1.0"
+description = "MealMate FastAPI backend service"
+readme = "backend/README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "alembic",
+    "asyncpg",
+    "fastapi",
+    "greenlet",
+    "jinja2",
+    "pydantic-settings",
+    "python-multipart",
+    "sqlalchemy[asyncio]",
+    "uvicorn[standard]",
+]
+
+[dependency-groups]
+dev = [
+    "aiosqlite",
+    "httpx",
+    "mypy",
+    "pytest",
+    "pytest-asyncio",
+    "ruff",
+]
+
+[tool.uv]
+package = false
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["backend"]

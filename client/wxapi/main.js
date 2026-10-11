@@ -1,19 +1,23 @@
 const CONFIG = require('../config.js')
 const {
   adaptBannersResponse,
+  adaptDinnerPlanResponse,
   adaptFoodDetailResponse,
   adaptFoodsResponse,
   adaptRecordsResponse
 } = require('../utils/api-adapter.js')
 
-const request = (url, method, data) => {
+let loginPromise = null
+
+const rawRequest = (url, method, data, token) => {
   return new Promise((resolve, reject) => {
     wx.request({
       url: CONFIG.apiBaseUrl + url,
       method: method.toUpperCase(),
       data: data || {},
       header: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': token ? 'Bearer ' + token : ''
       },
       success(result) {
         resolve(result.data)
@@ -25,20 +29,64 @@ const request = (url, method, data) => {
   })
 }
 
-Promise.prototype.finally = function (callback) {
-  var Promise = this.constructor
-  return this.then(
-    function (value) {
-      return Promise.resolve(callback()).then(function () {
-        return value
-      })
-    },
-    function (reason) {
-      return Promise.resolve(callback()).then(function () {
-        throw reason
-      })
+const request = (url, method, data) => rawRequest(url, method, data, wx.getStorageSync('mealMateToken'))
+
+function wechatLogin() {
+  return new Promise((resolve, reject) => {
+    wx.login({
+      success: result => result.code ? resolve(result.code) : reject(result),
+      fail: reject
+    })
+  }).then(code => {
+    const cachedProfile = wx.getStorageSync('userInfo') || {}
+    return rawRequest('/auth/wechat-login', 'post', { code, nickname: cachedProfile.nickName || undefined })
+  }).then(res => {
+    if (!res || res.code !== 0 || !res.data.access_token) {
+      throw new Error((res && res.message) || '登录失败')
     }
-  )
+    wx.setStorageSync('mealMateToken', res.data.access_token)
+    wx.setStorageSync('mealMateUser', res.data)
+    return res.data.access_token
+  })
+}
+
+function ensureLogin(force) {
+  const token = !force && wx.getStorageSync('mealMateToken')
+  if (token) {
+    return Promise.resolve(token)
+  }
+  if (!loginPromise) {
+    loginPromise = wechatLogin().finally(() => { loginPromise = null })
+  }
+  return loginPromise
+}
+
+function authorizedRequest(url, method, data, retried) {
+  return ensureLogin(false).then(token => rawRequest(url, method, data, token)).then(res => {
+    if (res && res.code === 40100 && !retried) {
+      wx.removeStorageSync('mealMateToken')
+      return ensureLogin(true).then(() => authorizedRequest(url, method, data, true))
+    }
+    return res
+  })
+}
+
+if (!Promise.prototype.finally) {
+  Promise.prototype.finally = function (callback) {
+    var Promise = this.constructor
+    return this.then(
+      function (value) {
+        return Promise.resolve(callback()).then(function () {
+          return value
+        })
+      },
+      function (reason) {
+        return Promise.resolve(callback()).then(function () {
+          throw reason
+        })
+      }
+    )
+  }
 }
 
 function withMessage(promise) {
@@ -55,13 +103,27 @@ function withMessage(promise) {
 
 module.exports = {
   request,
+  ensureLogin,
   banners: (data) => withMessage(request('/banners', 'get', data).then(adaptBannersResponse)),
   foodCategories: (data) => withMessage(request('/food-categories', 'get', data)),
   foods: (data) => withMessage(request('/foods', 'get', data).then(adaptFoodsResponse)),
   foodDetail: (id) => withMessage(request('/foods/' + id, 'get').then(adaptFoodDetailResponse)),
-  createEatRecord: (data) => withMessage(request('/eat-records', 'post', data)),
-  eatRecords: (data) => withMessage(request('/eat-records', 'get', data).then(adaptRecordsResponse)),
-  deleteEatRecord: (id) => withMessage(request('/eat-records/' + id + '?user_id=' + CONFIG.fixedUserId, 'delete')),
+  eatRecords: (data) => withMessage(authorizedRequest('/eat-records', 'get', data).then(adaptRecordsResponse)),
+  deleteEatRecord: (id) => withMessage(authorizedRequest('/eat-records/' + id, 'delete')),
+  diningGroupCurrent: () => withMessage(authorizedRequest('/dining-groups/current', 'get')),
+  createDiningGroup: (data) => withMessage(authorizedRequest('/dining-groups', 'post', data)),
+  joinDiningGroup: (data) => withMessage(authorizedRequest('/dining-groups/join', 'post', data)),
+  updateDiningGroupName: (data) => withMessage(authorizedRequest('/dining-groups/me', 'patch', data)),
+  updateProfile: (data) => withMessage(authorizedRequest('/auth/me', 'patch', data)),
+  feedingValueSummary: () => withMessage(authorizedRequest('/feeding-values', 'get')),
+  createFeedingReward: (data) => withMessage(authorizedRequest('/feeding-values/rewards', 'post', data)),
+  deleteFeedingReward: (id) => withMessage(authorizedRequest('/feeding-values/rewards/' + id, 'delete')),
+  redeemFeedingReward: (data) => withMessage(authorizedRequest('/feeding-values/redeem', 'post', data)),
+  dinnerPlanCurrent: () => withMessage(authorizedRequest('/dinner-plans/current', 'get').then(adaptDinnerPlanResponse)),
+  createDinnerPlan: (data) => withMessage(authorizedRequest('/dinner-plans', 'post', data).then(adaptDinnerPlanResponse)),
+  getDinnerPlan: (id) => withMessage(authorizedRequest('/dinner-plans/' + id, 'get').then(adaptDinnerPlanResponse)),
+  completeDinnerPlan: (id) => withMessage(authorizedRequest('/dinner-plans/' + id + '/complete', 'post')),
+  cancelDinnerPlan: (id) => withMessage(authorizedRequest('/dinner-plans/' + id + '/cancel', 'post')),
 
   goodsCategory: (data) => withMessage(request('/food-categories', 'get', data)),
   goods: (data) => withMessage(request('/foods', 'get', data).then(adaptFoodsResponse)),

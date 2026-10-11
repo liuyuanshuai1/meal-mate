@@ -34,7 +34,7 @@ function adaptFood(food) {
   return Object.assign({}, food, {
     categoryId: food.categoryId || food.category_id,
     pic: normalizeImageUrl(food.pic || food.image_url || ""),
-    minPrice: food.minPrice !== undefined ? food.minPrice : food.price
+    feeding_value: Number(food.feeding_value || 0)
   })
 }
 
@@ -71,7 +71,7 @@ function adaptBannersResponse(res) {
   return Object.assign({}, res, {
     data: pickArray(res.data).map(item => Object.assign({}, item, {
       picUrl: normalizeImageUrl(item.picUrl || item.image_url || item.pic || ""),
-      businessId: item.businessId || item.food_id || item.link_id || 0
+      businessId: item.businessId || item.food_id || item.link_id || item.link_target || 0
     }))
   })
 }
@@ -92,8 +92,22 @@ function adaptRecordsResponse(res) {
   })
 }
 
+function adaptDinnerPlanResponse(res) {
+  if (!res || res.code !== 0 || !res.data || !res.data.id) {
+    return res
+  }
+  return Object.assign({}, res, {
+    data: Object.assign({}, res.data, {
+      items: (res.data.items || []).map(item => Object.assign({}, item, {
+        food_image_url: normalizeImageUrl(item.food_image_url || "")
+      }))
+    })
+  })
+}
+
 module.exports = {
   adaptBannersResponse,
+  adaptDinnerPlanResponse,
   adaptFood,
   adaptFoodsResponse,
   adaptFoodDetailResponse,

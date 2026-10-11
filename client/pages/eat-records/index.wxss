@@ -1,12 +1,19 @@
 .empty {
-  padding: 260rpx 30rpx 0;
-  color: #999;
+  margin: 24rpx 28rpx;
+  padding: 180rpx 30rpx;
+  border: 1rpx solid #eee5d4;
+  border-radius: 22rpx;
+  background: #fffaf0;
+  color: #938774;
   font-size: 28rpx;
   text-align: center;
 }
 .record {
-  padding: 28rpx 30rpx;
-  border-bottom: 1rpx solid #eee0c0;
+  margin: 20rpx 24rpx;
+  padding: 26rpx 28rpx;
+  border: 1rpx solid #eee5d4;
+  border-radius: 20rpx;
+  background: #fffaf0;
 }
 .record-head {
   display: flex;
@@ -14,8 +21,8 @@
   align-items: center;
 }
 .record-time {
-  color: #1f1f1f;
-  font-size: 30rpx;
+  color: #352d25;
+  font-size: 28rpx;
   font-weight: 600;
 }
 .delete {
@@ -25,20 +32,20 @@
 .record-remark,
 .record-total {
   margin-top: 14rpx;
-  color: #777;
-  font-size: 26rpx;
+  color: #817767;
+  font-size: 24rpx;
 }
 .record-item {
   display: flex;
   justify-content: space-between;
   margin-top: 18rpx;
-  font-size: 26rpx;
+  font-size: 25rpx;
 }
 .food-name {
-  color: #1f1f1f;
+  color: #352d25;
 }
 .food-meta {
-  color: #777;
+  color: #938774;
 }
 .loading {
   padding: 30rpx;

@@ -15,6 +15,14 @@
       </view>
     </view>
 
+    <view class="shared-entry" wx:if="{{sharedPlan}}" bindtap="goSharedPlan">
+      <view>
+        <view class="entry-title">{{sharedPlan.creator_name}} 发来一份菜单</view>
+        <view class="entry-desc">共 {{sharedPlan.items.length}} 道，{{sharedPlan.feeding_total}} 投喂值</view>
+      </view>
+      <view class="entry-action">打开</view>
+    </view>
+
     <view class="dinner-entry" bindtap="goDinnerPlan">
       <view>
         <view class="entry-title">今晚安排</view>
@@ -31,7 +39,7 @@
           <image src="{{item.pic}}" class="image" mode="aspectFill" lazy-load="true" />
         </view>
         <view class="goods-title">{{item.name}}</view>
-        <view class="goods-price">参考价 ¥ {{item.minPrice}}</view>
+        <view class="goods-price">{{item.feeding_value}}投喂值</view>
       </view>
     </view>
 

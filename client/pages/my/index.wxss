@@ -1,31 +1,39 @@
 .profile {
-  padding: 56rpx 30rpx 46rpx;
+  margin: 24rpx 24rpx 18rpx;
+  padding: 34rpx 30rpx;
   display: flex;
   align-items: center;
-  border-bottom: 1rpx solid #eee0c0;
+  border: 1rpx solid #eee5d4;
+  border-radius: 22rpx;
+  background: #fffaf0;
 }
 .avatar {
   width: 112rpx;
   height: 112rpx;
   border-radius: 56rpx;
-  background: #fffaf0;
+  background: #f5e8d2;
 }
 .nickname {
   margin-left: 24rpx;
-  color: #1f1f1f;
-  font-size: 34rpx;
+  color: #352d25;
+  font-size: 31rpx;
   font-weight: 600;
 }
 .menu-list {
-  margin-top: 20rpx;
+  margin: 0 24rpx 30rpx;
+  padding: 0 26rpx;
+  border: 1rpx solid #eee5d4;
+  border-radius: 22rpx;
+  background: #fffaf0;
 }
 .menu-item {
-  height: 96rpx;
+  min-height: 96rpx;
   line-height: 96rpx;
-  padding: 0 34rpx;
-  color: #1f1f1f;
-  font-size: 30rpx;
+  padding: 0 34rpx 0 0;
+  color: #4b4034;
+  font-size: 27rpx;
   border-bottom: 1rpx solid #eee0c0;
-  background: url(/images/arrow-right.png) no-repeat 700rpx center;
+  background: url(/images/arrow-right.png) no-repeat right center;
   background-size: 16rpx auto;
 }
+.menu-item:last-child { border-bottom: 0; }

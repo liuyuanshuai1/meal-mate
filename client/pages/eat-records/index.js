@@ -1,5 +1,4 @@
 const WXAPI = require('../../wxapi/main')
-const CONFIG = require('../../config.js')
 const {
   appendRecordsPage,
   removeRecordAfterDelete
@@ -33,7 +32,6 @@ Page({
     const page = reset ? 1 : this.data.page + 1
     this.setData({ loading: true })
     return WXAPI.eatRecords({
-      user_id: CONFIG.fixedUserId,
       page,
       page_size: this.data.pageSize
     }).then(res => {

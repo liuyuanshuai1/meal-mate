@@ -1,0 +1,22 @@
+<view class="page plan-page">
+  <view class="empty" wx:if="{{!loading && !plan}}">
+    <view class="empty-title">还没有待确认的菜单</view>
+    <view class="hint">饭搭子提交后，打开这里或下拉即可看到。</view>
+    <button class="secondary" bindtap="goChoose">去选菜</button>
+  </view>
+
+  <view class="card" wx:if="{{plan}}">
+    <view class="headline">今晚菜单</view>
+    <view class="cook-note">每道菜的做菜人会分别获得对应投喂值</view>
+    <view class="food" wx:for="{{plan.items}}" wx:key="id">
+      <image class="food-image" src="{{item.food_image_url}}" mode="aspectFill"></image>
+      <view class="food-name">{{item.food_name}}</view>
+      <view class="food-count">× {{item.quantity}}</view>
+      <view class="food-price">{{item.cook_name}} +{{item.cook_reward}} 投喂值</view>
+    </view>
+    <view class="total">合计 {{plan.feeding_total}} 投喂值</view>
+    <view class="earned-total">完成后按每道菜的做菜人分别入账，共 {{plan.feeding_total}} 投喂值</view>
+    <button class="primary" bindtap="completePlan" loading="{{submitting}}">吃完啦</button>
+    <button class="plain" bindtap="cancelPlan" disabled="{{submitting}}">取消这份菜单</button>
+  </view>
+</view>

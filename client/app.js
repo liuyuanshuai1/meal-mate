@@ -1,3 +1,5 @@
+const WXAPI = require('./wxapi/main')
+
 App({
   navigateToLogin: false,
   onLaunch: function() {
@@ -46,6 +48,7 @@ App({
       }
     })
     wx.setStorageSync('mallName', '一起吃饭叭')
+    WXAPI.ensureLogin().catch(() => {})
   },
   goLoginPageTimeOut: function() {
     if (this.navigateToLogin){

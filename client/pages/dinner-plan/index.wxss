@@ -1,0 +1,14 @@
+.plan-page { padding: 32rpx 28rpx; box-sizing: border-box; }
+.card, .empty { padding: 32rpx; border: 1rpx solid #eee5d4; border-radius: 24rpx; background: #fffaf0; }
+.headline, .empty-title { margin-bottom: 20rpx; font-size: 34rpx; line-height: 46rpx; font-weight: 600; color: #352d25; }
+.cook-note { margin: 0 0 20rpx; color: #9b705c; font-size: 24rpx; line-height: 36rpx; }
+.hint { margin-bottom: 28rpx; color: #817767; font-size: 26rpx; line-height: 40rpx; }
+.food { display: flex; align-items: center; padding: 18rpx 0; border-bottom: 1rpx solid #eee0c0; }
+.food-image { width: 84rpx; height: 84rpx; margin-right: 20rpx; border-radius: 12rpx; background: #eee0c0; }
+.food-name { flex: 1; color: #352d25; font-size: 27rpx; line-height: 38rpx; }
+.food-count { margin-right: 18rpx; color: #817767; }
+.food-price { color: #9b8e79; font-size: 22rpx; }
+.total { padding: 26rpx 0; text-align: right; color: #352d25; font-size: 30rpx; font-weight: 600; }
+.earned-total { margin: -14rpx 0 24rpx; text-align: right; color: #9b705c; font-size: 23rpx; line-height: 34rpx; }
+.primary, .secondary { color: #fff; background: #e9564f; border-radius: 48rpx; font-size: 29rpx; }
+.plain { margin-top: 18rpx; color: #817767; background: transparent; border: 1rpx solid #e7dcc4; border-radius: 48rpx; }

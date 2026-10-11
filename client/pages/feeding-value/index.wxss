@@ -1,0 +1,27 @@
+.feeding-page { padding: 28rpx; box-sizing: border-box; color: #352d25; }
+.balance-card, .card { margin-bottom: 24rpx; padding: 30rpx; border: 1rpx solid #eee5d4; border-radius: 24rpx; background: #fffaf0; }
+.balance-card { background: #fff1e8; }
+.page-title { margin-bottom: 24rpx; font-size: 34rpx; line-height: 46rpx; font-weight: 600; }
+.balances { display: flex; }
+.balance { flex: 1; margin-right: 14rpx; padding: 20rpx; border-radius: 18rpx; background: rgba(255,255,255,.78); }
+.balance:last-child { margin-right: 0; }
+.balance-name { color: #817767; font-size: 25rpx; }
+.balance-number { margin-top: 8rpx; color: #e64340; font-size: 48rpx; font-weight: 700; }
+.balance-unit { color: #9b8e79; font-size: 22rpx; }
+.section-title { margin-bottom: 22rpx; font-size: 30rpx; line-height: 42rpx; font-weight: 600; }
+.reward-form { display: flex; align-items: center; margin-bottom: 16rpx; }
+.reward-input, .cost-input { min-width: 0; margin-right: 12rpx; padding: 18rpx; border: 1rpx solid #eee5d4; border-radius: 12rpx; background: #fff; font-size: 24rpx; }
+.reward-input { flex: 1; }
+.cost-input { width: 130rpx; }
+.add-button, .redeem-button { margin: 0; color: #fff; background: #e9564f; border-radius: 30rpx; font-size: 24rpx; }
+.add-button::after, .redeem-button::after { border: 0; }
+.add-button { padding: 0 20rpx; line-height: 68rpx; }
+.reward-row, .entry-row { display: flex; align-items: center; padding: 22rpx 0; border-bottom: 1rpx solid #eee0c0; }
+.reward-copy, .entry-copy { flex: 1; min-width: 0; }
+.reward-name, .entry-description { font-size: 27rpx; line-height: 38rpx; color: #352d25; }
+.reward-cost, .entry-owner { margin-top: 6rpx; color: #938774; font-size: 23rpx; }
+.redeem-button { padding: 0 22rpx; line-height: 54rpx; }
+.remove-reward { margin-left: 18rpx; padding: 0 8rpx; color: #a99c88; font-size: 38rpx; }
+.entry-amount { color: #548e5b; font-size: 30rpx; font-weight: 600; }
+.entry-amount.spent { color: #e64340; }
+.empty-note { padding: 20rpx 0; color: #938774; font-size: 25rpx; }

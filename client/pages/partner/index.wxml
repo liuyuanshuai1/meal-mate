@@ -1,0 +1,23 @@
+<view class="page partner-page">
+  <view class="card" wx:if="{{group}}">
+    <view class="title">{{group.name}}</view>
+    <view class="name-tip">名称默认使用微信昵称，也可以分别修改自己和对方的显示名。</view>
+    <button class="sync-name" size="mini" bindtap="syncWechatNickname">同步我的微信昵称</button>
+    <view class="member" wx:for="{{group.members}}" wx:key="user_id">
+      <view class="avatar">饭</view>
+      <view class="member-main">
+        <view class="role">{{item.user_id === currentUserId ? '我的名称' : '饭搭子的名称'}}</view>
+        <input class="name-input" value="{{item.editingName ? item.editName : item.nickname}}" maxlength="64" bindinput="editMemberName" bindconfirm="onNameConfirm" data-index="{{index}}" confirm-type="done" />
+      </view>
+      <button class="save-name" size="mini" data-index="{{index}}" bindtap="saveMemberName">保存</button>
+    </view>
+    <button wx:if="{{group.members.length < 2}}" class="primary" open-type="share">邀请饭搭子</button>
+    <view wx:else class="ready">两个人到齐啦</view>
+  </view>
+
+  <view class="empty" wx:elif="{{!loading}}">
+    <view class="title">先找到你的饭搭子</view>
+    <view class="hint">创建后，把邀请卡片分享给另一个人。</view>
+    <button class="primary" bindtap="createGroup">创建饭搭子</button>
+  </view>
+</view>

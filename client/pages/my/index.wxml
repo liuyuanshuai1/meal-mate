@@ -5,6 +5,9 @@
       <view class="nickname">{{nickName}}</view>
     </view>
     <view class="menu-list">
+      <view class="menu-item" bindtap="goDinnerPlan">饭搭子菜单</view>
+      <view class="menu-item" bindtap="goPartner">我的饭搭子</view>
+      <view class="menu-item" bindtap="goFeedingValues">投喂值与兑换</view>
       <view class="menu-item" bindtap="goEatRecords">一起吃过</view>
       <view class="menu-item" bindtap="comingSoon">偏好设置</view>
       <view class="menu-item" bindtap="comingSoon">不想吃清单</view>

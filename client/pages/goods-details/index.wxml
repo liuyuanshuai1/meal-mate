@@ -1,9 +1,9 @@
 <view class="page">
   <view class="page__bd">
-    <view class='goods-name'>{{goodsDetail.basicInfo.name}}</view>    
+    <view class='goods-name'>{{goodsDetail.basicInfo.name}}</view>
     <image wx:for="{{goodsDetail.pics}}" src="{{item.pic}}" class="goods-image" mode="widthFix" lazy-load="true" />
     <view class='goods-desc'>{{goodsDetail.content}}</view>
-    <view class='goods-price'>参考价 ¥ {{selectSizePrice}}</view>
+    <view class='goods-price'>{{goodsDetail.basicInfo.feeding_value}}投喂值</view>
     <view wx:if="{{goodsDetail.properties && goodsDetail.properties.length > 0}}" class="size-label-box">
       <block wx:for="{{goodsDetail.properties}}" wx:for-item="property" wx:for-index="idx" wx:key="id">
         <view class="label">{{property.name}}</view>
@@ -27,11 +27,11 @@
     </view>
     <view class='btns'>
       <view wx:if="{{shopNum > 0}}">
-        <button class="weui-btn" type="primary" bindtap="goShopCar">去看看今晚吃啥</button>
-      </view>  
+        <button class="weui-btn" type="primary" bindtap="goShopCar">查看今晚菜单</button>
+      </view>
       <view>
-        <button class="weui-btn" type="warn" bindtap="addShopCar">加入今晚菜单</button> 
-      </view>   
+        <button class="weui-btn" type="warn" bindtap="addShopCar" disabled="{{addingToCart}}">加入今晚菜单</button>
+      </view>
     </view>
   </view>
   <view class='page__ft'>

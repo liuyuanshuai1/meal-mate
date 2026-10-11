@@ -8,7 +8,7 @@
     <div class="col-md-3"><strong>记录 ID</strong><div>{{ record.id }}</div></div>
     <div class="col-md-3"><strong>用户 ID</strong><div>{{ record.user_id }}</div></div>
     <div class="col-md-3"><strong>人物标识</strong><div>{{ record.person }}</div></div>
-    <div class="col-md-3"><strong>总价</strong><div>{{ record.total_price }}</div></div>
+    <div class="col-md-3"><strong>投喂值</strong><div>{{ feeding_total }}</div></div>
     <div class="col-md-4"><strong>吃饭时间</strong><div>{{ record.eaten_at }}</div></div>
     <div class="col-md-4"><strong>创建时间</strong><div>{{ record.created_at }}</div></div>
     <div class="col-md-4"><strong>更新时间</strong><div>{{ record.updated_at }}</div></div>
@@ -16,7 +16,7 @@
 </div>
 <div class="table-panel">
   <table class="table table-hover align-middle">
-    <thead><tr><th>菜品 ID</th><th>图片</th><th>菜品名称</th><th>数量</th><th>单价</th><th>小计</th></tr></thead>
+    <thead><tr><th>菜品 ID</th><th>图片</th><th>菜品名称</th><th>数量</th><th>投喂值 / 份</th><th>投喂值小计</th></tr></thead>
     <tbody>
       {% for item in record.items %}
       <tr>
@@ -24,8 +24,8 @@
         <td>{% if item.food_image_url %}<img src="{{ item.food_image_url }}" alt="{{ item.food_name }}">{% else %}<span class="muted">无</span>{% endif %}</td>
         <td>{{ item.food_name }}</td>
         <td>{{ item.quantity }}</td>
-        <td>{{ item.price }}</td>
-        <td>{{ item.quantity * item.price }}</td>
+        <td>{{ item.feeding_value }}</td>
+        <td>{{ item.quantity * item.feeding_value }}</td>
       </tr>
       {% endfor %}
     </tbody>

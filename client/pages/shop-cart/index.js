@@ -1,24 +1,24 @@
 const WXAPI = require('../../wxapi/main')
-const CONFIG = require('../../config.js')
 const {
   allSelect,
-  buildEatRecordPayload,
+  buildDinnerPlanPayload,
   buildShopCarInfo,
-  noSelect,
-  totalPrice
+  noSelect
 } = require('../../utils/dinner-plan.js')
 
 Page({
   data: {
     goodsList: {
       saveHidden: true,
-      totalPrice: 0,
       allSelect: true,
       noSelect: false,
       list: []
     },
     delBtnWidth: 120,
-    submitting: false
+    submitting: false,
+    members: [],
+    feedingTotal: 0,
+    unassignedCount: 0
   },
   getEleWidth: function(w) {
     try {
@@ -40,6 +40,16 @@ Page({
   onShow: function() {
     const shopCarInfo = wx.getStorageSync('shopCarInfo') || {}
     this.setGoodsList(this.data.goodsList.saveHidden, shopCarInfo.shopList || [])
+    WXAPI.diningGroupCurrent().then(res => {
+      if (res.code !== 0 || !res.data || !res.data.id) {
+        this.setData({ members: [] })
+        return
+      }
+      const members = res.data.members || []
+      this.setData({ members })
+      const list = this.data.goodsList.list.map(item => Object.assign({}, item, { cook_options: members }))
+      this.setGoodsList(this.data.goodsList.saveHidden, list)
+    }).catch(() => this.setData({ members: [] }))
   },
   toIndexPage: function() {
     wx.switchTab({
@@ -65,10 +75,8 @@ Page({
       } else {
         left = "margin-left:-" + Math.min(disX, delBtnWidth) + "px"
       }
-      const list = this.data.goodsList.list
       if (index !== "" && index != null) {
-        list[parseInt(index)].left = left
-        this.setGoodsList(this.data.goodsList.saveHidden, list)
+        this.setData({ ['goodsList.list[' + parseInt(index) + '].left']: left })
       }
     }
   },
@@ -79,10 +87,8 @@ Page({
       const disX = this.data.startX - endX
       const delBtnWidth = this.data.delBtnWidth
       const left = disX > delBtnWidth / 2 ? "margin-left:-" + delBtnWidth + "px" : "margin-left:0px"
-      const list = this.data.goodsList.list
       if (index !== "" && index != null) {
-        list[parseInt(index)].left = left
-        this.setGoodsList(this.data.goodsList.saveHidden, list)
+        this.setData({ ['goodsList.list[' + parseInt(index) + '].left']: left })
       }
     }
   },
@@ -100,20 +106,34 @@ Page({
     }
   },
   setGoodsList: function(saveHidden, list) {
-    const nextList = list || []
+    const nextList = (list || []).map((item, index) => Object.assign({}, item, {
+      cartKey: item.goodsId == null ? 'row:' + index : String(item.goodsId) + ':' + (item.propertyChildIds || ''),
+      feeding_value: Number(item.feeding_value || 0),
+      total_feeding_value: Number(item.feeding_value || 0) * Number(item.number || 0)
+    }))
     this.setData({
       goodsList: {
         saveHidden,
-        totalPrice: totalPrice(nextList),
         allSelect: allSelect(nextList),
         noSelect: noSelect(nextList),
         list: nextList
       }
     })
+    const selectedList = nextList.filter(item => item.active)
+    this.setData({
+      feedingTotal: selectedList.reduce((sum, item) => sum + Number(item.feeding_value || 0) * Number(item.number || 0), 0),
+      unassignedCount: selectedList.filter(item => !item.cook_user_id).length
+    })
     wx.setStorage({
       key: "shopCarInfo",
       data: buildShopCarInfo(nextList)
     })
+  },
+  selectCook: function(e) {
+    const list = this.data.goodsList.list
+    const index = Number(e.currentTarget.dataset.index)
+    list[index].cook_user_id = Number(e.currentTarget.dataset.userId)
+    this.setGoodsList(this.data.goodsList.saveHidden, list)
   },
   bindAllSelect: function() {
     const currentAllSelect = this.data.goodsList.allSelect
@@ -167,12 +187,37 @@ Page({
       })
       return
     }
+    if (this.data.members.length < 2) {
+      wx.showToast({ title: '先创建饭搭子并邀请对方加入', icon: 'none' })
+      wx.navigateTo({ url: '/pages/partner/index' })
+      return
+    }
+    const unassigned = selected.find(item => !item.cook_user_id)
+    if (unassigned) {
+      wx.showToast({ title: '请先给「' + unassigned.name + '」选择做菜人', icon: 'none' })
+      return
+    }
     if (this.data.submitting) {
       return
     }
     this.setData({ submitting: true })
-    wx.showLoading({ title: '记录中' })
-    WXAPI.createEatRecord(buildEatRecordPayload(list, CONFIG, '')).then(res => {
+    wx.showLoading({ title: '发送中' })
+    WXAPI.diningGroupCurrent().then(groupRes => {
+      if (groupRes.code !== 0) {
+        return groupRes
+      }
+      if (!groupRes.data || !groupRes.data.id || groupRes.data.members.length < 2) {
+        wx.hideLoading()
+        this.setData({ submitting: false })
+        wx.showToast({ title: '等饭搭子加入后再发送', icon: 'none' })
+        wx.navigateTo({ url: '/pages/partner/index' })
+        return null
+      }
+      return WXAPI.createDinnerPlan(buildDinnerPlanPayload(list))
+    }).then(res => {
+      if (!res) {
+        return
+      }
       wx.hideLoading()
       this.setData({ submitting: false })
       if (res.code === 0) {
@@ -180,30 +225,29 @@ Page({
         this.setData({
           goodsList: {
             saveHidden: true,
-            totalPrice: 0,
             allSelect: false,
             noSelect: true,
             list: []
           }
         })
         wx.showToast({
-          title: '已记录这顿饭',
+          title: '已发给饭搭子',
           icon: 'success'
         })
         wx.navigateTo({
-          url: "/pages/eat-records/index"
+          url: "/pages/dinner-plan/index"
         })
         return
       }
       wx.showToast({
-        title: res.message || '记录失败，请稍后再试',
+        title: res.message || '发送失败，请稍后再试',
         icon: 'none'
       })
     }).catch(() => {
       wx.hideLoading()
       this.setData({ submitting: false })
       wx.showToast({
-        title: '记录失败，请稍后再试',
+        title: '发送失败，请稍后再试',
         icon: 'none'
       })
     })

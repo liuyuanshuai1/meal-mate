@@ -3,6 +3,8 @@
   background-color: #f6f0e3;
   min-height: 100vh;
   box-sizing: border-box;
+  color: #352d25;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
 }
 .wxParse-img {
   display: block !important;

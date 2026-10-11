@@ -1,0 +1,42 @@
+<view class="page feeding-page">
+  <view class="balance-card">
+    <view class="page-title">我们的投喂值</view>
+    <view class="balances">
+      <view class="balance" wx:for="{{balances}}" wx:key="user_id">
+        <view class="balance-name">{{item.nickname}}</view>
+        <view class="balance-number">{{item.balance}}</view>
+        <view class="balance-unit">投喂值</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="section-title">想兑换什么？</view>
+    <view class="reward-form">
+      <input class="reward-input" placeholder="例如：今晚选电影" maxlength="128" value="{{rewardName}}" bindinput="updateRewardName" />
+      <input class="cost-input" placeholder="投喂值" type="number" value="{{rewardCost}}" bindinput="updateRewardCost" />
+      <button class="add-button" loading="{{saving}}" bindtap="addReward">添加</button>
+    </view>
+    <view class="empty-note" wx:if="{{!rewards.length}}">添加你们想兑换的小愿望吧</view>
+    <view class="reward-row" wx:for="{{rewards}}" wx:key="id">
+      <view class="reward-copy">
+        <view class="reward-name">{{item.name}}</view>
+        <view class="reward-cost">{{item.cost}} 投喂值</view>
+      </view>
+      <button class="redeem-button" size="mini" data-index="{{index}}" bindtap="redeem">兑换</button>
+      <view class="remove-reward" data-index="{{index}}" bindtap="deleteReward">×</view>
+    </view>
+  </view>
+
+  <view class="card history-card">
+    <view class="section-title">投喂记录</view>
+    <view class="empty-note" wx:if="{{!entries.length}}">还没有记录，今晚做点好吃的吧</view>
+    <view class="entry-row" wx:for="{{entries}}" wx:key="id">
+      <view class="entry-copy">
+        <view class="entry-description">{{item.description}}</view>
+        <view class="entry-owner">{{item.nickname}} · {{item.timeLabel}}</view>
+      </view>
+      <view class="entry-amount {{item.amount < 0 ? 'spent' : ''}}">{{item.amount > 0 ? '+' : ''}}{{item.amount}}</view>
+    </view>
+  </view>
+</view>

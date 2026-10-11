@@ -20,7 +20,7 @@
               <image class='goods-pic' mode='aspectFill' lazy-load="true" src="{{goods.pic}}"></image>
               <view class='goods-info'>
                 <text class='goodsName'>{{goods.name}}</text>
-                <text class='goodsPrice'>参考价 ￥{{goods.minPrice}}</text>
+                <text class='goodsPrice'>{{goods.feeding_value}}投喂值</text>
               </view>
             </view>
           </block>

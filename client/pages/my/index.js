@@ -8,6 +8,15 @@ Page({
       url: "/pages/eat-records/index"
     })
   },
+  goDinnerPlan: function() {
+    wx.navigateTo({ url: "/pages/dinner-plan/index" })
+  },
+  goPartner: function() {
+    wx.navigateTo({ url: "/pages/partner/index" })
+  },
+  goFeedingValues: function() {
+    wx.navigateTo({ url: '/pages/feeding-value/index' })
+  },
   comingSoon: function() {
     wx.showToast({
       title: "后续开放",

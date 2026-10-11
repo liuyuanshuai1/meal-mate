@@ -1,12 +1,12 @@
 const WXAPI = require('../../wxapi/main')
-const CONFIG = require('../../config.js')
 
 Page({
   data: {
     swiperCurrent: 0,
     bannerList: [],
     goodsRecommend: [],
-    recentFoods: []
+    recentFoods: [],
+    sharedPlan: null
   },
   onLoad: function() {
     wx.setNavigationBarTitle({
@@ -36,7 +36,6 @@ Page({
       }
     })
     WXAPI.eatRecords({
-      user_id: CONFIG.fixedUserId,
       page: 1,
       page_size: 3
     }).then(res => {
@@ -50,6 +49,11 @@ Page({
           })
         })
         this.setData({ recentFoods })
+      }
+    })
+    WXAPI.dinnerPlanCurrent().then(res => {
+      if (res.code === 0) {
+        this.setData({ sharedPlan: res.data && res.data.id ? res.data : null })
       }
     })
   },
@@ -75,6 +79,9 @@ Page({
     wx.switchTab({
       url: "/pages/shop-cart/index"
     })
+  },
+  goSharedPlan: function() {
+    wx.navigateTo({ url: '/pages/dinner-plan/index' })
   },
   onShareAppMessage: function() {
     return {

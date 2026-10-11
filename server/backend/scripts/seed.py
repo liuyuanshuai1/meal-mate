@@ -1,5 +1,4 @@
 import asyncio
-from decimal import Decimal
 
 from app.core.database import SessionLocal
 from app.models.banner import Banner
@@ -28,7 +27,7 @@ async def seed() -> None:
                 category_id=categories[0].id,
                 name="番茄炒蛋",
                 description="酸甜热乎的家常菜",
-                price=Decimal("18.00"),
+                feeding_value=18,
                 is_recommended=True,
                 sort=10,
             ),
@@ -36,12 +35,12 @@ async def seed() -> None:
                 category_id=categories[1].id,
                 name="牛肉面",
                 description="汤面一碗，今晚稳了",
-                price=Decimal("28.00"),
+                feeding_value=28,
                 is_recommended=True,
                 sort=20,
             ),
-            Food(category_id=categories[2].id, name="柠檬茶", description="清爽一点", price=Decimal("12.00"), sort=30),
-            Food(category_id=categories[3].id, name="煎饺", description="外脆里香", price=Decimal("16.00"), sort=40),
+            Food(category_id=categories[2].id, name="柠檬茶", description="清爽一点", feeding_value=12, sort=30),
+            Food(category_id=categories[3].id, name="煎饺", description="外脆里香", feeding_value=16, sort=40),
         ]
         db.add_all(foods)
         await db.flush()

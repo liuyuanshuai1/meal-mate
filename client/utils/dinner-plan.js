@@ -24,16 +24,6 @@ function mergeShopCarItem(shopCarInfo, item) {
   return next
 }
 
-function totalPrice(list) {
-  const total = (list || []).reduce((sum, item) => {
-    if (!item.active) {
-      return sum
-    }
-    return sum + Number(item.price || 0) * Number(item.number || 0)
-  }, 0)
-  return parseFloat(total.toFixed(2))
-}
-
 function allSelect(list) {
   return !!(list && list.length) && list.every(item => item.active)
 }
@@ -50,20 +40,14 @@ function buildShopCarInfo(list) {
   }
 }
 
-function buildEatRecordPayload(list, config, remark) {
+function buildDinnerPlanPayload(list) {
   const selected = (list || []).filter(item => item.active)
   return {
-    user_id: config.fixedUserId,
-    person: config.fixedPerson,
     items: selected.map(item => ({
       food_id: item.goodsId,
-      food_name: item.name,
-      food_image_url: item.pic,
       quantity: item.number,
-      price: item.price,
-      spec: item.label || ""
-    })),
-    remark: remark || ""
+      cook_user_id: item.cook_user_id
+    }))
   }
 }
 
@@ -81,11 +65,10 @@ function removeRecordAfterDelete(records, id, success) {
 module.exports = {
   allSelect,
   appendRecordsPage,
-  buildEatRecordPayload,
+  buildDinnerPlanPayload,
   buildShopCarInfo,
   mergeShopCarItem,
   noSelect,
   normalizeShopCarInfo,
-  removeRecordAfterDelete,
-  totalPrice
+  removeRecordAfterDelete
 }

@@ -3,39 +3,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.core.response import AppException
-from app.core.timezone import now_tz
-from app.models.eat_record import EatRecord, EatRecordItem
-from app.schemas.eat_record import EatRecordCreate
+from app.models.eat_record import EatRecord
 
 
 class EatRecordService:
-    @staticmethod
-    async def create_record(db: AsyncSession, payload: EatRecordCreate) -> EatRecord:
-        total_price = sum(item.price * item.quantity for item in payload.items)
-        record = EatRecord(
-            user_id=payload.user_id,
-            person=payload.person or "default",
-            total_price=total_price,
-            eaten_at=now_tz(),
-            items=[
-                EatRecordItem(
-                    food_id=item.food_id,
-                    food_name=item.food_name,
-                    food_image_url=item.food_image_url,
-                    quantity=item.quantity,
-                    price=item.price,
-                )
-                for item in payload.items
-            ],
-        )
-        db.add(record)
-        await db.commit()
-        stmt = select(EatRecord).options(selectinload(EatRecord.items)).where(EatRecord.id == record.id)
-        created = await db.scalar(stmt)
-        if created is None:
-            raise AppException(50000, "创建记录失败")
-        return created
-
     @staticmethod
     async def list_records(db: AsyncSession, user_id: int, page: int, page_size: int) -> tuple[list[EatRecord], int]:
         if user_id <= 0:

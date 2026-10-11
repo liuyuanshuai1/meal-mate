@@ -8,6 +8,20 @@ Create a local environment file before running the API:
 cp .env.example .env
 ```
 
+Set `WECHAT_APP_ID`, `WECHAT_APP_SECRET`, a long random `TOKEN_SECRET`, and a separate long random `ADMIN_TOKEN` in
+`.env`. Requests that create, update, delete, or upload catalog content must send `X-Admin-Token`. The `/admin`
+browser interface uses HTTP Basic authentication with username `admin` and `ADMIN_TOKEN` as its password. If
+`ADMIN_TOKEN` is empty, both management paths are disabled. `WECHAT_MOCK_LOGIN=true` is available only for local UI
+development and must stay disabled in production.
+
+Install the locked backend and development dependencies from the `server` directory:
+
+```bash
+uv sync --frozen
+```
+
+`server/pyproject.toml` and `server/uv.lock` are the source of truth for Python dependencies. The requirements files are retained for compatibility only.
+
 The default development database URL in `.env.example` is:
 
 ```bash
@@ -25,14 +39,14 @@ docker compose up -d db
 Run migrations and seed data from `server/backend`:
 
 ```bash
-alembic upgrade head
-python scripts/seed.py
+uv run --project .. alembic upgrade head
+uv run --project .. python scripts/seed.py
 ```
 
 Start API:
 
 ```bash
-uv run uvicorn app.main:app --reload
+uv run --project .. uvicorn app.main:app --reload
 ```
 
 Local uploaded images are served from:

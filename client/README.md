@@ -24,8 +24,9 @@ Then open this `client/` directory in WeChat Developer Tools.
 Important fields:
 
 - `apiBaseUrl`: backend API base URL, usually `http://127.0.0.1:8000/api` for local development.
-- `fixedUserId`: placeholder user ID used by the current frontend flow.
-- `fixedPerson`: placeholder person key used by dinner records.
+
+The Mini Program signs in with `wx.login` automatically. Configure the matching AppID and secret on the backend; no
+fixed frontend user ID is needed.
 
 ## Tests
 

@@ -4,11 +4,10 @@ const test = require('node:test')
 const {
   allSelect,
   appendRecordsPage,
-  buildEatRecordPayload,
+  buildDinnerPlanPayload,
   mergeShopCarItem,
   noSelect,
-  removeRecordAfterDelete,
-  totalPrice
+  removeRecordAfterDelete
 } = require('../utils/dinner-plan.js')
 
 test('merges same food with same spec and appends different spec', () => {
@@ -16,21 +15,21 @@ test('merges same food with same spec and appends different spec', () => {
     goodsId: 1,
     propertyChildIds: 'taste:1',
     name: '番茄炒蛋',
-    price: 18,
+    feeding_value: 18,
     number: 1
   })
   const merged = mergeShopCarItem(first, {
     goodsId: 1,
     propertyChildIds: 'taste:1',
     name: '番茄炒蛋',
-    price: 18,
+    feeding_value: 18,
     number: 2
   })
   const appended = mergeShopCarItem(merged, {
     goodsId: 1,
     propertyChildIds: 'taste:2',
     name: '番茄炒蛋',
-    price: 18,
+    feeding_value: 18,
     number: 1
   })
   assert.equal(appended.shopNum, 4)
@@ -40,27 +39,22 @@ test('merges same food with same spec and appends different spec', () => {
 
 test('calculates total and selection state', () => {
   const list = [
-    { active: true, price: 18, number: 2 },
-    { active: false, price: 99, number: 1 }
+    { active: true, feeding_value: 18, number: 2 },
+    { active: false, feeding_value: 99, number: 1 }
   ]
-  assert.equal(totalPrice(list), 36)
   assert.equal(allSelect(list), false)
   assert.equal(noSelect(list), false)
   assert.equal(noSelect([{ active: false }]), true)
 })
 
-test('builds eat record payload from selected items only', () => {
-  const payload = buildEatRecordPayload([
-    { active: true, goodsId: 1, name: '番茄炒蛋', pic: 'a.jpg', number: 1, price: 18, label: '微辣' },
-    { active: false, goodsId: 2, name: '米饭', pic: 'b.jpg', number: 1, price: 2 }
-  ], {
-    fixedUserId: 1,
-    fixedPerson: 'default'
-  }, '')
-  assert.equal(payload.user_id, 1)
+test('builds server-backed dinner plan from selected items only', () => {
+  const payload = buildDinnerPlanPayload([
+    { active: true, goodsId: 1, name: '番茄炒蛋', pic: 'a.jpg', number: 1, feeding_value: 18, label: '微辣' },
+    { active: false, goodsId: 2, name: '米饭', pic: 'b.jpg', number: 1, feeding_value: 2 }
+  ])
   assert.equal(payload.items.length, 1)
   assert.equal(payload.items[0].food_id, 1)
-  assert.equal(payload.items[0].spec, '微辣')
+  assert.equal(payload.items[0].quantity, 1)
 })
 
 test('appends record pages and preserves list on failed delete', () => {

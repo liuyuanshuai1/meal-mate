@@ -8,6 +8,7 @@
   width: 200rpx;
   flex-shrink: 0;
   border-right: 1rpx solid #eee0c0;
+  background: #f8f2e7;
 }
 .right {
   width: 550rpx;
@@ -21,49 +22,70 @@
   flex-direction: row;
   align-items: center;
   justify-content: center;
+  padding: 0 12rpx;
+  box-sizing: border-box;
+  color: #786b58;
+  font-size: 27rpx;
+  line-height: 38rpx;
+  text-align: center;
 }
 
 .category-item-active {
-  background-color: #eee0c0;
+  background-color: #f0e2c4;
+  color: #9c573f;
+  font-weight: 600;
+  border-left: 6rpx solid #e96b5d;
 }
 
 .goodsWrap-category {
-  margin-left: 20rpx;
-  margin-bottom: 20rpx;
-  height: 80rpx;
-  line-height: 80rpx;
+  margin: 0 22rpx 12rpx;
+  min-height: 82rpx;
   display: flex;
   align-items: center;
   justify-content: flex-start;
   border-bottom: 1rpx solid #eee0c0;
+  color: #352d25;
+  font-size: 31rpx;
+  font-weight: 600;
 }
 
 .goods-item {
   width: 100%;
   display: flex;
-  padding: 5px;
+  padding: 14rpx 0;
   flex-direction: row;
-  margin-left: 20rpx;
+  margin: 0 18rpx;
   align-items: center;
   justify-content: flex-start;
-  border-bottom: 1rpx solid #f2f2f2;
+  border-bottom: 1rpx solid #eee8dc;
 }
 
 .goods-pic {
-  width: 80px;
-  height: 80px;
+  width: 160rpx;
+  height: 160rpx;
   flex-shrink: 0;
+  border-radius: 14rpx;
+  background: #eee0c0;
 }
 
 .goods-info {
   display: flex;
   flex-direction: column;
-  padding: 0px 5px 0px 5px;
-  height: 80px;
+  padding: 0 0 0 18rpx;
+  min-height: 160rpx;
+  justify-content: center;
+  min-width: 0;
 }
 .goodsName {
   font-size: 28rpx;
+  line-height: 38rpx;
+  color: #352d25;
+  font-weight: 500;
+  max-width: 100%;
 }
 .goodsPrice {
-  color:#e64340;
+  margin-top: 10rpx;
+  color: #9b8e79;
+  font-size: 23rpx;
+  line-height: 32rpx;
 }

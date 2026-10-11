@@ -7,7 +7,7 @@
         <view class="delete" bindtap="deleteRecord" data-id="{{item.id}}">删除</view>
       </view>
       <view class="record-remark" wx:if="{{item.remark}}">{{item.remark}}</view>
-      <view class="record-total">参考花费 ¥ {{item.total_price}}</view>
+      <view class="record-total">本次获得 {{item.feeding_total}} 投喂值</view>
       <view class="record-items">
         <view class="record-item" wx:for="{{item.items}}" wx:for-item="food" wx:key="id">
           <view class="food-name">{{food.food_name || food.name}}</view>

@@ -33,55 +33,59 @@ swiper-item image {
   opacity: 1;
 }
 .recommend-title {
-  text-align: center;
-  font-size: 38rpx;
-  height: 38rpx;
-  line-height: 38rpx;
-  margin-top: 50rpx;
-  margin-bottom: 20rpx;
+  text-align: left;
+  font-size: 34rpx;
+  line-height: 46rpx;
+  font-weight: 600;
+  color: #352d25;
+  margin: 42rpx 28rpx 20rpx;
 }
 .goods-container{
   display: flex;
-  justify-content: space-between;  
+  justify-content: space-between;
   flex-wrap:wrap;
-  box-sizing: content-box;
-  padding: 24rpx;
+  box-sizing: border-box;
+  padding: 0 24rpx;
 }
 .goods-box{
   width: 339rpx;
-  height: 472rpx;
+  min-height: 430rpx;
   overflow: hidden;
   margin-bottom: 24rpx;
-  border-radius:5px;
+  border-radius: 20rpx;
+  background: #fffaf0;
+  border: 1rpx solid #eee5d4;
+  box-sizing: border-box;
 }
 .goods-box .img-box{
-  width: 339rpx;
-  height: 339rpx;
+  width: 100%;
+  height: 310rpx;
   overflow: hidden;
 }
 .goods-box .img-box image{
-   width: 339rpx;
-   height: 339rpx;
+   width: 100%;
+   height: 310rpx;
 }
 .goods-box .goods-title{
-  width: 280rpx;
+  width: auto;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
-  font-size: 24rpx;
-  padding: 24rpx 0 0rpx 0;
-  color:#000;
-  margin-left: 24rpx;
+  font-size: 29rpx;
+  line-height: 40rpx;
+  font-weight: 600;
+  padding: 16rpx 18rpx 0;
+  color: #352d25;
 }
 .goods-box .goods-price{
-  width: 280rpx;
+  width: auto;
   overflow: hidden;
-  font-size: 24rpx;
-  padding: 10rpx 0;
-  color:#e64340;
-  margin-left: 24rpx;
+  font-size: 23rpx;
+  line-height: 34rpx;
+  padding: 4rpx 18rpx 16rpx;
+  color: #9b8e79;
 }
-.dinner-entry {
+.dinner-entry, .shared-entry {
   margin: 28rpx 24rpx 0;
   padding: 28rpx 30rpx;
   display: flex;
@@ -89,17 +93,19 @@ swiper-item image {
   align-items: center;
   background: #fffaf0;
   border: 1rpx solid #eee0c0;
-  border-radius: 8rpx;
+  border-radius: 20rpx;
 }
+.shared-entry { background: #fff2ef; border-color: #f1c4bd; }
 .entry-title {
-  font-size: 34rpx;
-  color: #1f1f1f;
+  font-size: 30rpx;
+  color: #352d25;
   font-weight: 600;
 }
 .entry-desc {
   margin-top: 8rpx;
   color: #777;
   font-size: 24rpx;
+  line-height: 36rpx;
 }
 .entry-action {
   color: #e64340;
@@ -125,7 +131,7 @@ swiper-item image {
   color: #6e4f21;
   background: #fffaf0;
   border: 1rpx solid #eee0c0;
-  border-radius: 8rpx;
+  border-radius: 28rpx;
   font-size: 24rpx;
 }
 .weui-cells {

@@ -1,15 +1,15 @@
-from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, File, Form, Request, UploadFile
 from fastapi.responses import RedirectResponse, Response
 from fastapi.templating import Jinja2Templates
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import joinedload, selectinload
 
+from app.core.admin_auth import require_admin_basic
 from app.core.database import get_db
 from app.core.response import AppException
 from app.models.banner import Banner
@@ -18,7 +18,7 @@ from app.models.food import Food
 from app.models.food_category import FoodCategory
 from app.services.image_upload import save_upload_image
 
-router = APIRouter(prefix="/admin", tags=["admin"])
+router = APIRouter(prefix="/admin", tags=["admin"], dependencies=[Depends(require_admin_basic)])
 templates = Jinja2Templates(directory=str(Path(__file__).resolve().parents[1] / "templates"))
 
 MESSAGE_TEXT = {
@@ -27,6 +27,7 @@ MESSAGE_TEXT = {
     "deleted": "删除成功",
 }
 LINK_TYPES = {"none", "food", "url"}
+EAT_RECORD_PAGE_SIZE = 50
 
 
 def success_redirect(url: str) -> RedirectResponse:
@@ -81,19 +82,6 @@ def parse_optional_int(value: str | None) -> int | None:
         raise ValueError("参数错误") from exc
 
 
-def parse_decimal(value: str | None) -> Decimal:
-    cleaned = (value or "").strip()
-    if cleaned == "":
-        return Decimal("0")
-    try:
-        parsed = Decimal(cleaned)
-    except InvalidOperation as exc:
-        raise ValueError("参数错误") from exc
-    if parsed < 0:
-        raise ValueError("参数错误")
-    return parsed
-
-
 def checkbox(value: str | None) -> bool:
     return value is not None
 
@@ -106,7 +94,7 @@ async def list_categories(db: AsyncSession) -> list[FoodCategory]:
 async def list_foods_with_category(db: AsyncSession) -> list[Food]:
     rows = await db.scalars(
         select(Food)
-        .options(selectinload(Food.category))
+        .options(joinedload(Food.category))
         .where(Food.is_active.is_(True))
         .order_by(Food.sort.asc(), Food.id.asc()),
     )
@@ -303,7 +291,7 @@ async def create_food(
     description: Annotated[str | None, Form()] = None,
     image_url: Annotated[str | None, Form()] = None,
     image_file: Annotated[UploadFile | None, File()] = None,
-    price: Annotated[str | None, Form()] = None,
+    feeding_value: Annotated[str | None, Form()] = None,
     is_recommended: Annotated[str | None, Form()] = None,
     is_active: Annotated[str | None, Form()] = None,
     sort: Annotated[str | None, Form()] = None,
@@ -314,7 +302,7 @@ async def create_food(
         "category_id": category_id or "",
         "description": description or "",
         "image_url": image_url or "",
-        "price": price or "",
+        "feeding_value": feeding_value or "",
         "is_recommended": checkbox(is_recommended),
         "is_active": checkbox(is_active),
         "sort": sort or "",
@@ -325,7 +313,7 @@ async def create_food(
             name=clean_required(name, 128),
             description=clean_optional(description),
             image_url=await parse_uploaded_or_url(image_file, image_url),
-            price=parse_decimal(price),
+            feeding_value=parse_int(feeding_value),
             is_recommended=checkbox(is_recommended),
             is_active=checkbox(is_active),
             sort=parse_int(sort),
@@ -350,7 +338,7 @@ async def update_food(
     description: Annotated[str | None, Form()] = None,
     image_url: Annotated[str | None, Form()] = None,
     image_file: Annotated[UploadFile | None, File()] = None,
-    price: Annotated[str | None, Form()] = None,
+    feeding_value: Annotated[str | None, Form()] = None,
     is_recommended: Annotated[str | None, Form()] = None,
     is_active: Annotated[str | None, Form()] = None,
     sort: Annotated[str | None, Form()] = None,
@@ -361,7 +349,7 @@ async def update_food(
         "category_id": category_id or "",
         "description": description or "",
         "image_url": image_url or "",
-        "price": price or "",
+        "feeding_value": feeding_value or "",
         "is_recommended": checkbox(is_recommended),
         "is_active": checkbox(is_active),
         "sort": sort or "",
@@ -374,7 +362,7 @@ async def update_food(
         food.name = clean_required(name, 128)
         food.description = clean_optional(description)
         food.image_url = await parse_uploaded_or_url(image_file, image_url)
-        food.price = parse_decimal(price)
+        food.feeding_value = parse_int(feeding_value)
         food.is_recommended = checkbox(is_recommended)
         food.is_active = checkbox(is_active)
         food.sort = parse_int(sort)
@@ -518,6 +506,7 @@ def parse_user_id(value: str | None) -> int:
 async def admin_eat_records(
     request: Request,
     user_id: str | None = None,
+    page: int = 1,
     message: str | None = None,
     db: AsyncSession = Depends(get_db),
 ) -> Response:
@@ -533,15 +522,26 @@ async def admin_eat_records(
                 "message": None,
                 "error": str(exc),
                 "records": [],
+                "feeding_totals": {},
                 "user_id": user_id or "1",
+                "page": 1,
+                "total_pages": 1,
             },
             status_code=400,
         )
+    page = max(page, 1)
+    total = await db.scalar(
+        select(func.count()).select_from(EatRecord).where(EatRecord.user_id == parsed_user_id)
+    )
+    total_pages = max(1, ((total or 0) + EAT_RECORD_PAGE_SIZE - 1) // EAT_RECORD_PAGE_SIZE)
+    page = min(page, total_pages)
     rows = await db.scalars(
         select(EatRecord)
         .options(selectinload(EatRecord.items))
         .where(EatRecord.user_id == parsed_user_id)
-        .order_by(EatRecord.eaten_at.desc(), EatRecord.id.desc()),
+        .order_by(EatRecord.eaten_at.desc(), EatRecord.id.desc())
+        .offset((page - 1) * EAT_RECORD_PAGE_SIZE)
+        .limit(EAT_RECORD_PAGE_SIZE),
     )
     return templates.TemplateResponse(
         request,
@@ -552,7 +552,12 @@ async def admin_eat_records(
             "message": message_text(message),
             "error": None,
             "records": list(rows),
+            "feeding_totals": {
+                record.id: sum(item.feeding_value * item.quantity for item in record.items) for record in rows
+            },
             "user_id": parsed_user_id,
+            "page": page,
+            "total_pages": total_pages,
         },
     )
 
@@ -576,6 +581,7 @@ async def admin_eat_record_detail(
                 "message": None,
                 "error": str(exc),
                 "record": None,
+                "feeding_total": 0,
                 "user_id": user_id or "1",
             },
             status_code=400,
@@ -594,6 +600,7 @@ async def admin_eat_record_detail(
             "message": None,
             "error": None if record is not None else "数据不存在",
             "record": record,
+            "feeding_total": sum(item.feeding_value * item.quantity for item in record.items) if record else 0,
             "user_id": parsed_user_id,
         },
         status_code=200 if record is not None else 404,
@@ -619,6 +626,7 @@ async def delete_eat_record(
                 "message": None,
                 "error": str(exc),
                 "records": [],
+                "feeding_totals": {},
                 "user_id": user_id or "1",
             },
             status_code=400,
@@ -638,6 +646,7 @@ async def delete_eat_record(
                 "message": None,
                 "error": "数据不存在",
                 "record": None,
+                "feeding_total": 0,
                 "user_id": parsed_user_id,
             },
             status_code=404,
@@ -656,6 +665,7 @@ async def delete_eat_record(
                 "message": None,
                 "error": "保存失败，请稍后再试",
                 "record": record,
+                "feeding_total": sum(item.feeding_value * item.quantity for item in record.items),
                 "user_id": parsed_user_id,
             },
         )

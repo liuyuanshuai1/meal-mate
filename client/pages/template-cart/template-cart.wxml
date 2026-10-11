@@ -12,8 +12,8 @@
         <view class="edit-btn" hidden="{{saveHidden}}" bindtap="saveTap">完成</view>
     </view>
     <view class="goodsList">
-        <view class="a-gooods" wx:for="{{list}}"  wx:key="index" >
-            <view class="a-goods-conts {{item.active? 'active':''}}" bindtap="selectTap" bindtouchstart="touchS" bindtouchmove="touchM" bindtouchend="touchE" data-index="{{index}}"    style="{{item.left}}">
+        <view class="a-gooods" wx:for="{{list}}" wx:for-index="foodIndex" wx:key="cartKey" >
+            <view class="a-goods-conts {{item.active? 'active':''}}" bindtap="selectTap" bindtouchstart="touchS" bindtouchmove="touchM" bindtouchend="touchE" data-index="{{foodIndex}}"    style="{{item.left}}">
                 <view class="goods-info">
                     <view class="img-box">
                         <image src="{{item.pic}}" class="img"/>
@@ -21,15 +21,21 @@
                     <view class="text-box">
                         <view class="goods-title">{{item.name}}</view>
                         <view class="goods-label">{{item.label}}</view>
-                        <view class="goods-price">¥ {{item.price}}</view>
+                        <view class="goods-price">每份 {{item.feeding_value}} 投喂值 · 共 {{item.total_feeding_value}} 投喂值</view>
+                        <view class="cook-select-row">
+                            <view class="cook-label">这道菜谁来做？</view>
+                            <view class="cook-chip {{item.cook_user_id == cook.user_id ? 'active' : ''}}" wx:for="{{item.cook_options}}" wx:for-item="cook" wx:key="user_id" data-index="{{foodIndex}}" data-user-id="{{cook.user_id}}" catchtap="selectCook">
+                                {{cook.nickname}}<text wx:if="{{item.cook_user_id == cook.user_id}}"> ✓</text>
+                            </view>
+                        </view>
                         <view class="buy-num">
-                            <view class="jian-btn {{item.number==1? 'disabled' : ''}}" catchtap="jianBtnTap" data-index="{{index}}">-</view>
+                            <view class="jian-btn {{item.number==1? 'disabled' : ''}}" catchtap="jianBtnTap" data-index="{{foodIndex}}">-</view>
                             <input  type="number" value="{{item.number}}" disabled/>
-                            <view class="jia-btn {{item.number==curTouchGoodStore? 'disabled' : ''}}" catchtap="jiaBtnTap" data-index="{{index}}">+</view>
+                            <view class="jia-btn {{item.number==curTouchGoodStore? 'disabled' : ''}}" catchtap="jiaBtnTap" data-index="{{foodIndex}}">+</view>
                         </view>
                     </view>
                 </view>
-                <view class="delete-btn" data-index="{{index}}" catchtap="delItem">
+                <view class="delete-btn" data-index="{{foodIndex}}" catchtap="delItem">
                   删除
                 </view>
             </view>
@@ -38,7 +44,9 @@
     <view class="jiesuan-box">
         <view class="left-price">
             <view class="all-selected  {{allSelect?'active':''}}" bindtap="bindAllSelect">全选</view>
-        <view class="total" hidden="{{noSelect}}">参考合计：¥ {{totalPrice}}</view>
+            <view class="cook-status" wx:if="{{noSelect}}">先选几道今晚想吃的菜</view>
+            <view class="cook-status" wx:elif="{{unassignedCount > 0}}">还有 {{unassignedCount}} 道菜未选做菜人</view>
+            <view class="cook-status" wx:else>每道菜都已选好做菜人</view>
         </view>
         <view class="to-pay-btn {{noSelect?'no-select':''}}" hidden="{{!saveHidden}}" bindtap="toPayOrder">就吃这些</view>
         <view class="to-pay-btn {{noSelect?'no-select':''}}" hidden="{{saveHidden}}" bindtap="deleteSelected">删除</view>

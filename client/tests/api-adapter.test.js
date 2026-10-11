@@ -4,6 +4,7 @@ const test = require('node:test')
 const CONFIG = require('../config.js')
 const {
   adaptBannersResponse,
+  adaptDinnerPlanResponse,
   adaptFoodDetailResponse,
   adaptFoodsResponse,
   adaptRecordsResponse,
@@ -13,11 +14,11 @@ const {
 test('adapts food list fields', () => {
   const res = adaptFoodsResponse({
     code: 0,
-    data: [{ id: 1, category_id: 2, image_url: 'a.jpg', price: 18, name: '番茄炒蛋' }]
+    data: [{ id: 1, category_id: 2, image_url: 'a.jpg', feeding_value: 18, name: '番茄炒蛋' }]
   })
   assert.equal(res.data[0].categoryId, 2)
   assert.equal(res.data[0].pic, 'a.jpg')
-  assert.equal(res.data[0].minPrice, 18)
+  assert.equal(res.data[0].feeding_value, 18)
 })
 
 test('keeps backend error responses intact', () => {
@@ -29,10 +30,10 @@ test('keeps backend error responses intact', () => {
 test('adapts food detail to page-compatible shape', () => {
   const res = adaptFoodDetailResponse({
     code: 0,
-    data: { id: 3, name: '牛肉面', image_url: 'b.jpg', price: 25, description: '热乎' }
+    data: { id: 3, name: '牛肉面', image_url: 'b.jpg', feeding_value: 25, description: '热乎' }
   })
   assert.equal(res.data.basicInfo.pic, 'b.jpg')
-  assert.equal(res.data.basicInfo.minPrice, 25)
+  assert.equal(res.data.basicInfo.feeding_value, 25)
   assert.equal(res.data.pics[0].pic, 'b.jpg')
   assert.equal(res.data.content, '热乎')
   assert.deepEqual(res.data.properties, [])
@@ -67,4 +68,13 @@ test('normalizes backend static image paths', () => {
     data: [{ id: 1, image_url: '/static/uploads/banner.jpg' }]
   })
   assert.equal(banners.data[0].picUrl, `${apiOrigin}/static/uploads/banner.jpg`)
+})
+
+test('normalizes shared dinner plan images', () => {
+  const apiOrigin = CONFIG.apiBaseUrl.replace(/\/api\/?$/, '')
+  const response = adaptDinnerPlanResponse({
+    code: 0,
+    data: { id: 1, items: [{ food_image_url: '/static/uploads/dish.jpg' }] }
+  })
+  assert.equal(response.data.items[0].food_image_url, `${apiOrigin}/static/uploads/dish.jpg`)
 })

@@ -33,8 +33,8 @@
         <input class="form-control" name="image_file" type="file" accept="image/jpeg,image/png,image/webp">
       </div>
       <div class="mb-3">
-        <label class="form-label">参考价格</label>
-        <input class="form-control" name="price" type="number" min="0" step="0.01" value="{{ form.price if form.price is defined else item.price if item else 0 }}">
+        <label class="form-label">投喂值（每份）</label>
+        <input class="form-control" name="feeding_value" type="number" min="0" step="1" value="{{ form.feeding_value if form.feeding_value is defined else item.feeding_value if item else 0 }}">
       </div>
       <div class="mb-3">
         <label class="form-label">排序值</label>
@@ -57,7 +57,7 @@
   <div class="col-lg-8">
     <div class="table-panel">
       <table class="table table-hover align-middle">
-        <thead><tr><th>ID</th><th>图片</th><th>菜品名称</th><th>所属分类</th><th>参考价格</th><th>推荐</th><th>上架</th><th>排序</th><th>操作</th></tr></thead>
+        <thead><tr><th>ID</th><th>图片</th><th>菜品名称</th><th>所属分类</th><th>投喂值 / 份</th><th>推荐</th><th>上架</th><th>排序</th><th>操作</th></tr></thead>
         <tbody>
           {% for food in foods %}
           <tr>
@@ -65,7 +65,7 @@
             <td>{% if food.image_url %}<img src="{{ food.image_url }}" alt="{{ food.name }}">{% else %}<span class="muted">无</span>{% endif %}</td>
             <td>{{ food.name }}</td>
             <td>{{ food.category.name if food.category else '未分类' }}</td>
-            <td>{{ food.price }}</td>
+            <td>{{ food.feeding_value }}</td>
             <td>{{ '是' if food.is_recommended else '否' }}</td>
             <td>{{ '是' if food.is_active else '否' }}</td>
             <td>{{ food.sort }}</td>

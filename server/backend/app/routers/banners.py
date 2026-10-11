@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.admin_auth import require_admin
 from app.core.database import get_db
 from app.core.response import AppException, ok
 from app.models.banner import Banner
@@ -22,7 +23,11 @@ async def list_banners(include_inactive: bool = False, db: AsyncSession = Depend
 
 
 @router.post("")
-async def create_banner(payload: BannerCreate, db: AsyncSession = Depends(get_db)) -> dict[str, object]:
+async def create_banner(
+    payload: BannerCreate,
+    _: None = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, object]:
     banner = Banner(**payload.model_dump())
     db.add(banner)
     await db.commit()
@@ -31,7 +36,12 @@ async def create_banner(payload: BannerCreate, db: AsyncSession = Depends(get_db
 
 
 @router.put("/{banner_id}")
-async def update_banner(banner_id: int, payload: BannerUpdate, db: AsyncSession = Depends(get_db)) -> dict[str, object]:
+async def update_banner(
+    banner_id: int,
+    payload: BannerUpdate,
+    _: None = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, object]:
     banner = await db.get(Banner, banner_id)
     if banner is None:
         raise AppException(40004, "banner 不存在")
@@ -43,7 +53,11 @@ async def update_banner(banner_id: int, payload: BannerUpdate, db: AsyncSession 
 
 
 @router.delete("/{banner_id}")
-async def delete_banner(banner_id: int, db: AsyncSession = Depends(get_db)) -> dict[str, object]:
+async def delete_banner(
+    banner_id: int,
+    _: None = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, object]:
     banner = await db.get(Banner, banner_id)
     if banner is None:
         raise AppException(40004, "banner 不存在")

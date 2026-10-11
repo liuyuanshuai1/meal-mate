@@ -1,0 +1,15 @@
+.partner-page { padding: 32rpx 28rpx; box-sizing: border-box; }
+.card, .empty { padding: 32rpx; border: 1rpx solid #eee5d4; border-radius: 24rpx; background: #fffaf0; }
+.title { margin-bottom: 20rpx; font-size: 34rpx; line-height: 46rpx; font-weight: 600; color: #352d25; }
+.hint { margin-bottom: 28rpx; color: #817767; font-size: 26rpx; line-height: 40rpx; }
+.member { display: flex; align-items: center; padding: 20rpx 0; border-bottom: 1rpx solid #eee0c0; }
+.avatar { width: 72rpx; height: 72rpx; margin-right: 20rpx; border-radius: 50%; line-height: 72rpx; text-align: center; color: #fff; background: #e64340; }
+.role { margin-bottom: 6rpx; color: #9b8e79; font-size: 24rpx; }
+.member-main { flex: 1; }
+.name-tip { margin: -12rpx 0 16rpx; color: #938774; font-size: 24rpx; }
+.sync-name { margin: 0 0 18rpx; padding: 0 20rpx; color: #e64340; background: #fff1ed; }
+.name-input { width: 330rpx; padding: 14rpx 16rpx; border: 1rpx solid #e7dcc4; border-radius: 12rpx; background: #fff; color: #352d25; font-size: 26rpx; }
+.save-name { margin: 0 0 0 12rpx; padding: 0 18rpx; line-height: 52rpx; color: #e64340; background: #fff1ed; }
+.primary { margin-top: 32rpx; color: #fff; background: #e9564f; border-radius: 48rpx; font-size: 28rpx; }
+.primary::after, .sync-name::after, .save-name::after { border: 0; }
+.ready { margin-top: 36rpx; color: #43864a; text-align: center; }

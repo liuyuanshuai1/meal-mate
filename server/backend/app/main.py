@@ -10,7 +10,17 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.core.config import get_settings
 from app.core.response import AppException, fail, ok
-from app.routers import admin, banners, eat_records, food_categories, foods
+from app.routers import (
+    admin,
+    auth,
+    banners,
+    dining_groups,
+    dinner_plans,
+    eat_records,
+    feeding_values,
+    food_categories,
+    foods,
+)
 
 
 def create_app() -> FastAPI:
@@ -18,10 +28,14 @@ def create_app() -> FastAPI:
     app = FastAPI(title=settings.app_name, debug=settings.debug)
 
     app.include_router(health_router(), prefix="/api")
+    app.include_router(auth.router, prefix="/api")
     app.include_router(food_categories.router, prefix="/api")
     app.include_router(foods.router, prefix="/api")
     app.include_router(banners.router, prefix="/api")
     app.include_router(eat_records.router, prefix="/api")
+    app.include_router(dining_groups.router, prefix="/api")
+    app.include_router(dinner_plans.router, prefix="/api")
+    app.include_router(feeding_values.router, prefix="/api")
     app.include_router(admin.router)
 
     static_root = Path(settings.upload_dir).parent
@@ -54,7 +68,13 @@ def register_exception_handlers(app: FastAPI) -> None:
         return JSONResponse(status_code=200, content=content)
 
     @app.exception_handler(StarletteHTTPException)
-    async def http_exception_handler(_: Request, exc: StarletteHTTPException) -> JSONResponse:
+    async def http_exception_handler(request: Request, exc: StarletteHTTPException) -> JSONResponse:
+        if request.url.path.startswith("/admin") and exc.status_code in {401, 403}:
+            return JSONResponse(
+                status_code=exc.status_code,
+                content=fail(40300, str(exc.detail)),
+                headers=exc.headers,
+            )
         code = 40004 if exc.status_code == 404 else 40001
         return JSONResponse(status_code=200, content=fail(code, str(exc.detail)))
 

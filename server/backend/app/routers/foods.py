@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, File, UploadFile
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.admin_auth import require_admin
 from app.core.database import get_db
 from app.core.response import AppException, ok
 from app.models.food import Food
@@ -59,7 +60,11 @@ async def get_food(food_id: int, db: AsyncSession = Depends(get_db)) -> dict[str
 
 
 @router.post("")
-async def create_food(payload: FoodCreate, db: AsyncSession = Depends(get_db)) -> dict[str, object]:
+async def create_food(
+    payload: FoodCreate,
+    _: None = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, object]:
     food = Food(**payload.model_dump())
     db.add(food)
     await db.commit()
@@ -68,7 +73,12 @@ async def create_food(payload: FoodCreate, db: AsyncSession = Depends(get_db)) -
 
 
 @router.put("/{food_id}")
-async def update_food(food_id: int, payload: FoodUpdate, db: AsyncSession = Depends(get_db)) -> dict[str, object]:
+async def update_food(
+    food_id: int,
+    payload: FoodUpdate,
+    _: None = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, object]:
     food = await db.get(Food, food_id)
     if food is None:
         raise AppException(40004, "菜品不存在")
@@ -80,7 +90,11 @@ async def update_food(food_id: int, payload: FoodUpdate, db: AsyncSession = Depe
 
 
 @router.delete("/{food_id}")
-async def delete_food(food_id: int, db: AsyncSession = Depends(get_db)) -> dict[str, object]:
+async def delete_food(
+    food_id: int,
+    _: None = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, object]:
     food = await db.get(Food, food_id)
     if food is None:
         raise AppException(40004, "菜品不存在")
@@ -91,6 +105,6 @@ async def delete_food(food_id: int, db: AsyncSession = Depends(get_db)) -> dict[
 
 
 @router.post("/image")
-async def upload_food_image(file: UploadFile = File(...)) -> dict[str, object]:
+async def upload_food_image(file: UploadFile = File(...), _: None = Depends(require_admin)) -> dict[str, object]:
     image_url = await save_upload_image(file)
     return ok(ImageUploadOut(image_url=image_url).model_dump())

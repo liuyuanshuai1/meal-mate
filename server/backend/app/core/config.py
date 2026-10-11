@@ -18,6 +18,12 @@ class Settings(BaseSettings):
     upload_dir: str = Field(default=str(BACKEND_DIR / "static" / "uploads"), validation_alias="UPLOAD_DIR")
     public_static_url: str = Field(default="/static/uploads", validation_alias="PUBLIC_STATIC_URL")
     tz: str = Field(default="Asia/Shanghai", validation_alias="TZ")
+    wechat_app_id: str = Field(default="", validation_alias="WECHAT_APP_ID")
+    wechat_app_secret: str = Field(default="", validation_alias="WECHAT_APP_SECRET")
+    token_secret: str = Field(default="change-me-in-production", validation_alias="TOKEN_SECRET")
+    token_ttl_days: int = Field(default=30, validation_alias="TOKEN_TTL_DAYS")
+    admin_token: str = Field(default="", validation_alias="ADMIN_TOKEN")
+    wechat_mock_login: bool = Field(default=False, validation_alias="WECHAT_MOCK_LOGIN")
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
