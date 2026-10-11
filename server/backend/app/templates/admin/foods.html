@@ -37,6 +37,26 @@
         <input class="form-control" name="feeding_value" type="number" min="0" step="1" value="{{ form.feeding_value if form.feeding_value is defined else item.feeding_value if item else 0 }}">
       </div>
       <div class="mb-3">
+        <label class="form-label">预计用时（分钟）</label>
+        <input class="form-control" name="cook_minutes" type="number" min="1" max="480" value="{{ form.cook_minutes if form.cook_minutes is defined else item.cook_minutes if item and item.cook_minutes else '' }}">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">食材（每行一个，格式：名称|用量）</label>
+        <textarea class="form-control" name="ingredients_text" rows="5" placeholder="番茄|2个&#10;鸡蛋|3个">{{ form.ingredients_text if form.ingredients_text is defined else ingredients_text }}</textarea>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">做法（每行一步）</label>
+        <textarea class="form-control" name="steps_text" rows="6" placeholder="番茄切块，鸡蛋打散。">{{ form.steps_text if form.steps_text is defined else steps_text }}</textarea>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">做法状态</label>
+        {% set current_recipe_status = form.recipe_status if form.recipe_status is defined else item.recipe_status if item else 'draft' %}
+        <select class="form-select" name="recipe_status">
+          <option value="draft" {% if current_recipe_status == 'draft' %}selected{% endif %}>草稿</option>
+          <option value="published" {% if current_recipe_status == 'published' %}selected{% endif %}>已确认，允许推荐</option>
+        </select>
+      </div>
+      <div class="mb-3">
         <label class="form-label">排序值</label>
         <input class="form-control" name="sort" type="number" value="{{ form.sort if form.sort is defined else item.sort if item else 0 }}">
       </div>
@@ -57,7 +77,7 @@
   <div class="col-lg-8">
     <div class="table-panel">
       <table class="table table-hover align-middle">
-        <thead><tr><th>ID</th><th>图片</th><th>菜品名称</th><th>所属分类</th><th>投喂值 / 份</th><th>推荐</th><th>上架</th><th>排序</th><th>操作</th></tr></thead>
+        <thead><tr><th>ID</th><th>图片</th><th>菜品名称</th><th>所属分类</th><th>投喂值 / 份</th><th>做法</th><th>推荐</th><th>上架</th><th>排序</th><th>操作</th></tr></thead>
         <tbody>
           {% for food in foods %}
           <tr>
@@ -66,11 +86,15 @@
             <td>{{ food.name }}</td>
             <td>{{ food.category.name if food.category else '未分类' }}</td>
             <td>{{ food.feeding_value }}</td>
+            <td>{{ '已发布' if food.recipe_status == 'published' else '草稿' }}</td>
             <td>{{ '是' if food.is_recommended else '否' }}</td>
             <td>{{ '是' if food.is_active else '否' }}</td>
             <td>{{ food.sort }}</td>
             <td class="d-flex gap-2">
               <a class="btn btn-sm btn-outline-primary" href="/admin/foods?edit_id={{ food.id }}">编辑</a>
+              {% if food.recipe_status != 'published' %}
+              <form method="post" action="/admin/foods/{{ food.id }}/recipe-draft"><button class="btn btn-sm btn-outline-secondary" type="submit">AI 生成草稿</button></form>
+              {% endif %}
               <form method="post" action="/admin/foods/{{ food.id }}/delete" data-confirm="确认删除这个菜品？">
                 <button class="btn btn-sm btn-outline-danger" type="submit">删除</button>
               </form>

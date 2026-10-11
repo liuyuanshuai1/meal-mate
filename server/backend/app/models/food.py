@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import BigInteger, Boolean, CheckConstraint, ForeignKey, Index, Integer, String, Text
+from sqlalchemy import JSON, BigInteger, Boolean, CheckConstraint, ForeignKey, Index, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -32,6 +32,10 @@ class Food(TimestampMixin, Base):
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     image_url: Mapped[str | None] = mapped_column(Text, nullable=True)
     feeding_value: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
+    cook_minutes: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    ingredients: Mapped[list[dict[str, str]]] = mapped_column(JSON, nullable=False, default=list)
+    recipe_steps: Mapped[list[str]] = mapped_column(JSON, nullable=False, default=list)
+    recipe_status: Mapped[str] = mapped_column(String(16), nullable=False, default="draft", server_default="draft")
     is_recommended: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default="false")
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True, server_default="true")
     sort: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")

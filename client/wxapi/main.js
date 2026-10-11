@@ -108,6 +108,7 @@ module.exports = {
   foodCategories: (data) => withMessage(request('/food-categories', 'get', data)),
   foods: (data) => withMessage(request('/foods', 'get', data).then(adaptFoodsResponse)),
   foodDetail: (id) => withMessage(request('/foods/' + id, 'get').then(adaptFoodDetailResponse)),
+  recommendFoods: (data) => withMessage(authorizedRequest('/recommendations', 'post', data)),
   eatRecords: (data) => withMessage(authorizedRequest('/eat-records', 'get', data).then(adaptRecordsResponse)),
   deleteEatRecord: (id) => withMessage(authorizedRequest('/eat-records/' + id, 'delete')),
   diningGroupCurrent: () => withMessage(authorizedRequest('/dining-groups/current', 'get')),

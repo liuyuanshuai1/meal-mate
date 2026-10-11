@@ -3,6 +3,18 @@
     <view class='goods-name'>{{goodsDetail.basicInfo.name}}</view>
     <image wx:for="{{goodsDetail.pics}}" src="{{item.pic}}" class="goods-image" mode="widthFix" lazy-load="true" />
     <view class='goods-desc'>{{goodsDetail.content}}</view>
+    <view class="recipe" wx:if="{{goodsDetail.recipe_status === 'published'}}">
+      <view class="recipe-title">需要准备</view>
+      <view class="recipe-time">约 {{goodsDetail.cook_minutes}} 分钟</view>
+      <view class="recipe-ingredient" wx:for="{{goodsDetail.ingredients}}" wx:key="name">
+        <text>{{item.name}}</text><text>{{item.amount}}</text>
+      </view>
+      <view class="recipe-title recipe-steps-heading">怎么做</view>
+      <view class="recipe-step" wx:for="{{goodsDetail.recipe_steps}}" wx:key="*this">
+        <view class="recipe-step-number">{{index + 1}}</view>
+        <view class="recipe-step-text">{{item}}</view>
+      </view>
+    </view>
     <view class='goods-price'>{{goodsDetail.basicInfo.feeding_value}}投喂值</view>
     <view wx:if="{{goodsDetail.properties && goodsDetail.properties.length > 0}}" class="size-label-box">
       <block wx:for="{{goodsDetail.properties}}" wx:for-item="property" wx:for-index="idx" wx:key="id">

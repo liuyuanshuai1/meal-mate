@@ -24,6 +24,8 @@ class Settings(BaseSettings):
     token_ttl_days: int = Field(default=30, validation_alias="TOKEN_TTL_DAYS")
     admin_token: str = Field(default="", validation_alias="ADMIN_TOKEN")
     wechat_mock_login: bool = Field(default=False, validation_alias="WECHAT_MOCK_LOGIN")
+    deepseek_api_key: str = Field(default="", validation_alias="DEEPSEEK_API_KEY")
+    deepseek_model: str = Field(default="deepseek-flash", validation_alias="DEEPSEEK_MODEL")
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

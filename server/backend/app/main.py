@@ -20,6 +20,7 @@ from app.routers import (
     feeding_values,
     food_categories,
     foods,
+    recommendations,
 )
 
 
@@ -31,6 +32,7 @@ def create_app() -> FastAPI:
     app.include_router(auth.router, prefix="/api")
     app.include_router(food_categories.router, prefix="/api")
     app.include_router(foods.router, prefix="/api")
+    app.include_router(recommendations.router, prefix="/api")
     app.include_router(banners.router, prefix="/api")
     app.include_router(eat_records.router, prefix="/api")
     app.include_router(dining_groups.router, prefix="/api")

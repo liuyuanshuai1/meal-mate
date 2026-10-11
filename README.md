@@ -52,7 +52,7 @@ docker compose up -d db
 ```bash
 cd server/backend
 uv run --project .. alembic upgrade head
-uv run --project .. python scripts/seed.py
+uv run --project .. python -m scripts.seed
 ```
 
 启动 API：

@@ -40,7 +40,7 @@ Run migrations and seed data from `server/backend`:
 
 ```bash
 uv run --project .. alembic upgrade head
-uv run --project .. python scripts/seed.py
+uv run --project .. python -m scripts.seed
 ```
 
 Start API:
@@ -79,3 +79,9 @@ curl http://localhost:8080/api/health
 ```
 
 For server deployment, copy `../docker-compose.server.example.yml` to `../docker-compose.server.yml` and keep the real file uncommitted.
+
+# 智能推荐与菜谱
+
+首页推荐调用服务端 `/api/recommendations`。直接运行后端或使用 `docker-compose.server.yml` 时，在 `backend/.env` 配置 `DEEPSEEK_API_KEY`；使用 `server/docker-compose.yml` 时，在 `server/.env` 配置。可用 `DEEPSEEK_MODEL` 指定模型（默认 `deepseek-flash`）。密钥只保留在服务端。
+
+推荐仅从已上架且做法已发布的菜品中选取；已有菜品需要在 `/admin/foods` 补齐食材、用时、步骤并发布做法。后台的“AI 生成草稿”只生成待人工审核的内容，不会自动发布。迁移后原有菜品默认处于做法草稿状态，发布前不会进入智能推荐。

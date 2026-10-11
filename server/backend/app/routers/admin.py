@@ -16,7 +16,9 @@ from app.models.banner import Banner
 from app.models.eat_record import EatRecord
 from app.models.food import Food
 from app.models.food_category import FoodCategory
+from app.services.deepseek import request_json
 from app.services.image_upload import save_upload_image
+from app.services.recipes import parse_ingredients, parse_steps, validate_published_recipe
 
 router = APIRouter(prefix="/admin", tags=["admin"], dependencies=[Depends(require_admin_basic)])
 templates = Jinja2Templates(directory=str(Path(__file__).resolve().parents[1] / "templates"))
@@ -139,6 +141,10 @@ async def render_foods(
     form: dict[str, object] | None = None,
 ) -> Response:
     edit_food = await db.get(Food, edit_id) if edit_id is not None else None
+    ingredients_text = "\n".join(
+        f"{item['name']}|{item.get('amount', '')}" for item in (edit_food.ingredients or [])
+    ) if edit_food else ""
+    steps_text = "\n".join(edit_food.recipe_steps or []) if edit_food else ""
     return templates.TemplateResponse(
         request,
         "admin/foods.html",
@@ -150,6 +156,8 @@ async def render_foods(
             "foods": await list_foods_with_category(db),
             "categories": await list_categories(db),
             "edit_food": edit_food,
+            "ingredients_text": ingredients_text,
+            "steps_text": steps_text,
             "form": form or {},
         },
     )
@@ -292,6 +300,10 @@ async def create_food(
     image_url: Annotated[str | None, Form()] = None,
     image_file: Annotated[UploadFile | None, File()] = None,
     feeding_value: Annotated[str | None, Form()] = None,
+    cook_minutes: Annotated[str | None, Form()] = None,
+    ingredients_text: Annotated[str | None, Form()] = None,
+    steps_text: Annotated[str | None, Form()] = None,
+    recipe_status: Annotated[str | None, Form()] = None,
     is_recommended: Annotated[str | None, Form()] = None,
     is_active: Annotated[str | None, Form()] = None,
     sort: Annotated[str | None, Form()] = None,
@@ -303,6 +315,10 @@ async def create_food(
         "description": description or "",
         "image_url": image_url or "",
         "feeding_value": feeding_value or "",
+        "cook_minutes": cook_minutes or "",
+        "ingredients_text": ingredients_text or "",
+        "steps_text": steps_text or "",
+        "recipe_status": recipe_status or "draft",
         "is_recommended": checkbox(is_recommended),
         "is_active": checkbox(is_active),
         "sort": sort or "",
@@ -314,10 +330,17 @@ async def create_food(
             description=clean_optional(description),
             image_url=await parse_uploaded_or_url(image_file, image_url),
             feeding_value=parse_int(feeding_value),
+            cook_minutes=parse_optional_int(cook_minutes),
+            ingredients=parse_ingredients(ingredients_text or ""),
+            recipe_steps=parse_steps(steps_text or ""),
+            recipe_status=recipe_status or "draft",
             is_recommended=checkbox(is_recommended),
             is_active=checkbox(is_active),
             sort=parse_int(sort),
         )
+        if food.recipe_status not in {"draft", "published"}:
+            raise ValueError("做法状态无效")
+        validate_published_recipe(food)
         db.add(food)
         await db.commit()
     except (ValueError, AppException) as exc:
@@ -339,6 +362,10 @@ async def update_food(
     image_url: Annotated[str | None, Form()] = None,
     image_file: Annotated[UploadFile | None, File()] = None,
     feeding_value: Annotated[str | None, Form()] = None,
+    cook_minutes: Annotated[str | None, Form()] = None,
+    ingredients_text: Annotated[str | None, Form()] = None,
+    steps_text: Annotated[str | None, Form()] = None,
+    recipe_status: Annotated[str | None, Form()] = None,
     is_recommended: Annotated[str | None, Form()] = None,
     is_active: Annotated[str | None, Form()] = None,
     sort: Annotated[str | None, Form()] = None,
@@ -350,6 +377,10 @@ async def update_food(
         "description": description or "",
         "image_url": image_url or "",
         "feeding_value": feeding_value or "",
+        "cook_minutes": cook_minutes or "",
+        "ingredients_text": ingredients_text or "",
+        "steps_text": steps_text or "",
+        "recipe_status": recipe_status or "draft",
         "is_recommended": checkbox(is_recommended),
         "is_active": checkbox(is_active),
         "sort": sort or "",
@@ -363,6 +394,17 @@ async def update_food(
         food.description = clean_optional(description)
         food.image_url = await parse_uploaded_or_url(image_file, image_url)
         food.feeding_value = parse_int(feeding_value)
+        if cook_minutes is not None:
+            food.cook_minutes = parse_optional_int(cook_minutes)
+        if ingredients_text is not None:
+            food.ingredients = parse_ingredients(ingredients_text)
+        if steps_text is not None:
+            food.recipe_steps = parse_steps(steps_text)
+        if recipe_status is not None:
+            if recipe_status not in {"draft", "published"}:
+                raise ValueError("做法状态无效")
+            food.recipe_status = recipe_status
+        validate_published_recipe(food)
         food.is_recommended = checkbox(is_recommended)
         food.is_active = checkbox(is_active)
         food.sort = parse_int(sort)
@@ -374,6 +416,52 @@ async def update_food(
         await db.rollback()
         return await render_foods(request, db, error="保存失败，请稍后再试", edit_id=food_id, form=form)
     return success_redirect("/admin/foods?message=updated")
+
+
+@router.post("/foods/{food_id}/recipe-draft")
+async def generate_recipe_draft(
+    food_id: int, request: Request, db: AsyncSession = Depends(get_db)
+) -> Response:
+    food = await db.get(Food, food_id)
+    if food is None:
+        return await render_foods(request, db, error="菜品不存在")
+    if food.recipe_status == "published":
+        return await render_foods(request, db, error="已发布做法不会被草稿覆盖", edit_id=food_id)
+    try:
+        result = await request_json(
+            "为指定家常菜生成可供人工审核的做法草稿。仅返回 JSON："
+            '{"cook_minutes":20,"ingredients":[{"name":"食材","amount":"用量"}],'
+            '"steps":["第一步","第二步"]}。食材需包含油和主要调味料；步骤应具体、简短。',
+            {"name": food.name, "description": food.description},
+            max_tokens=1200,
+        )
+        ingredients = result.get("ingredients")
+        steps = result.get("steps")
+        minutes = result.get("cook_minutes")
+        if (
+            not isinstance(ingredients, list)
+            or not isinstance(steps, list)
+            or not isinstance(minutes, int)
+            or isinstance(minutes, bool)
+            or any(not isinstance(step, str) for step in steps)
+        ):
+            raise ValueError("草稿格式错误")
+        ingredient_lines = []
+        for item in ingredients:
+            if not isinstance(item, dict) or not isinstance(item.get("name"), str):
+                raise ValueError("食材格式错误")
+            ingredient_lines.append(f"{item['name']}|{item.get('amount', '')}")
+        food.ingredients = parse_ingredients("\n".join(ingredient_lines))
+        food.recipe_steps = parse_steps("\n".join(steps))
+        food.cook_minutes = minutes
+        if not 1 <= minutes <= 480 or not food.ingredients or not food.recipe_steps:
+            raise ValueError("草稿内容不完整")
+        food.recipe_status = "draft"
+        await db.commit()
+    except (AppException, ValueError, SQLAlchemyError) as exc:
+        await db.rollback()
+        return await render_foods(request, db, error=str(exc), edit_id=food_id)
+    return success_redirect(f"/admin/foods?edit_id={food_id}&message=updated")
 
 
 @router.post("/foods/{food_id}/delete")

@@ -1,4 +1,5 @@
 const WXAPI = require('../../wxapi/main')
+const { normalizeImageUrl } = require('../../utils/api-adapter.js')
 
 Page({
   data: {
@@ -6,7 +7,11 @@ Page({
     bannerList: [],
     goodsRecommend: [],
     recentFoods: [],
-    sharedPlan: null
+    sharedPlan: null,
+    recommendationText: '',
+    recommendationLoading: false,
+    recommendationItems: [],
+    recommendationMessage: ''
   },
   onLoad: function() {
     wx.setNavigationBarTitle({
@@ -82,6 +87,33 @@ Page({
   },
   goSharedPlan: function() {
     wx.navigateTo({ url: '/pages/dinner-plan/index' })
+  },
+  onRecommendationInput: function(e) {
+    this.setData({ recommendationText: e.detail.value })
+  },
+  fillRecommendationExample: function(e) {
+    this.setData({ recommendationText: e.currentTarget.dataset.text })
+  },
+  askRecommendation: function() {
+    const text = (this.data.recommendationText || '').trim()
+    if (text.length < 2) {
+      wx.showToast({ title: '说说你想吃什么', icon: 'none' })
+      return
+    }
+    if (this.data.recommendationLoading) return
+    this.setData({ recommendationLoading: true, recommendationItems: [], recommendationMessage: '' })
+    return WXAPI.recommendFoods({ text }).then(res => {
+      if (res.code !== 0) return
+      const data = res.data || {}
+      this.setData({
+        recommendationItems: (data.items || []).map(item => Object.assign({}, item, {
+          image_url: normalizeImageUrl(item.image_url)
+        })),
+        recommendationMessage: data.message || ''
+      })
+    }).catch(() => {
+      wx.showToast({ title: '推荐暂时不可用，请稍后再试', icon: 'none' })
+    }).finally(() => this.setData({ recommendationLoading: false }))
   },
   onShareAppMessage: function() {
     return {

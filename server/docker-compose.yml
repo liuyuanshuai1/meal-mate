@@ -32,6 +32,8 @@ services:
       TOKEN_TTL_DAYS: "${TOKEN_TTL_DAYS:-30}"
       ADMIN_TOKEN: "${ADMIN_TOKEN:-}"
       WECHAT_MOCK_LOGIN: "${WECHAT_MOCK_LOGIN:-false}"
+      DEEPSEEK_API_KEY: "${DEEPSEEK_API_KEY:-}"
+      DEEPSEEK_MODEL: "${DEEPSEEK_MODEL:-deepseek-flash}"
     volumes:
       - uploads:/app/static/uploads
     depends_on:

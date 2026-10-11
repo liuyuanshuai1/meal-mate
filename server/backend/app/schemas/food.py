@@ -9,6 +9,10 @@ class FoodBase(BaseModel):
     description: str | None = None
     image_url: str | None = None
     feeding_value: int = Field(default=0, ge=0)
+    cook_minutes: int | None = Field(default=None, gt=0, le=480)
+    ingredients: list[dict[str, str]] = Field(default_factory=list)
+    recipe_steps: list[str] = Field(default_factory=list)
+    recipe_status: str = Field(default="draft", pattern="^(draft|published)$")
     is_recommended: bool = False
     is_active: bool = True
     sort: int = 0
@@ -24,6 +28,10 @@ class FoodUpdate(BaseModel):
     description: str | None = None
     image_url: str | None = None
     feeding_value: int | None = Field(default=None, ge=0)
+    cook_minutes: int | None = Field(default=None, gt=0, le=480)
+    ingredients: list[dict[str, str]] | None = None
+    recipe_steps: list[str] | None = None
+    recipe_status: str | None = Field(default=None, pattern="^(draft|published)$")
     is_recommended: bool | None = None
     is_active: bool | None = None
     sort: int | None = None

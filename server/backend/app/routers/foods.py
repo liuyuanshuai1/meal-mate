@@ -9,6 +9,7 @@ from app.models.food import Food
 from app.schemas.common import PageResult
 from app.schemas.food import FoodCreate, FoodOut, FoodUpdate, ImageUploadOut
 from app.services.image_upload import save_upload_image
+from app.services.recipes import validate_published_recipe
 
 router = APIRouter(prefix="/foods", tags=["foods"])
 
@@ -66,6 +67,7 @@ async def create_food(
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, object]:
     food = Food(**payload.model_dump())
+    validate_published_recipe(food)
     db.add(food)
     await db.commit()
     await db.refresh(food)
@@ -84,6 +86,7 @@ async def update_food(
         raise AppException(40004, "菜品不存在")
     for key, value in payload.model_dump(exclude_unset=True).items():
         setattr(food, key, value)
+    validate_published_recipe(food)
     await db.commit()
     await db.refresh(food)
     return ok(FoodOut.model_validate(food).model_dump(mode="json"))

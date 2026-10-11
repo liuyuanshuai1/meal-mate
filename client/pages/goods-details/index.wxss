@@ -120,3 +120,17 @@
   height:50rpx;
   margin-top: 15rpx;
 }
+.recipe {
+  margin: 32rpx 24rpx;
+  padding: 30rpx;
+  background: #fffaf0;
+  border: 1rpx solid #eee0c0;
+  border-radius: 20rpx;
+}
+.recipe-title { color: #352d25; font-size: 31rpx; font-weight: 700; }
+.recipe-time { color: #9b8e79; font-size: 23rpx; margin: 8rpx 0 18rpx; }
+.recipe-ingredient { display: flex; justify-content: space-between; padding: 13rpx 0; color: #5d5143; font-size: 25rpx; border-bottom: 1rpx solid #eee6d8; }
+.recipe-steps-heading { margin-top: 30rpx; margin-bottom: 20rpx; }
+.recipe-step { display: flex; align-items: flex-start; margin-bottom: 22rpx; }
+.recipe-step-number { width: 38rpx; height: 38rpx; line-height: 38rpx; text-align: center; border-radius: 50%; flex-shrink: 0; background: #e8b593; color: #fff; font-size: 23rpx; margin-right: 18rpx; }
+.recipe-step-text { flex: 1; color: #51463b; font-size: 26rpx; line-height: 40rpx; }
