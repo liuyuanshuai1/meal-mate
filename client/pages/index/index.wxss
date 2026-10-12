@@ -1,44 +1,15 @@
-/* 轮播图 */
-.swiper-container{
-  width: 750rpx;
-  position: relative;
+.home-banner {
+  box-sizing: border-box;
+  width: 702rpx;
+  height: 280rpx;
+  margin: 24rpx 24rpx 0;
+  overflow: hidden;
+  border-radius: 24rpx;
+  background: #f4ead8;
 }
-.swiper_box {
-  width: 750rpx;
-  height:375rpx;
-}
-swiper-item image {
-  width: 750rpx;
-  height:375rpx;
-}
-.swiper-container .dots{
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 20rpx;
-  display: flex;
-  justify-content: center;
-}
-.swiper-container .dots .dot{
-  margin: 0 8rpx;
-  width: 14rpx;
-  height: 14rpx;
-  background: #fff;
-  border-radius: 50%;
-  transition: all .6s;
-  opacity: .5;
-}
-.swiper-container .dots .dot.active{
-  width: 14rpx;
-  opacity: 1;
-}
-.recommend-title {
-  text-align: left;
-  font-size: 34rpx;
-  line-height: 46rpx;
-  font-weight: 600;
-  color: #352d25;
-  margin: 42rpx 28rpx 20rpx;
+.home-banner-image {
+  width: 100%;
+  height: 100%;
 }
 .ai-recommend {
   margin: 28rpx 24rpx 0;
@@ -65,15 +36,6 @@ swiper-item image {
   color: #352d25;
   font-size: 27rpx;
   line-height: 40rpx;
-}
-.ai-recommend-examples { display: flex; flex-wrap: wrap; margin-top: 16rpx; }
-.ai-recommend-example {
-  margin: 0 14rpx 12rpx 0;
-  padding: 9rpx 18rpx;
-  border-radius: 30rpx;
-  background: #f4ead8;
-  color: #725b3d;
-  font-size: 22rpx;
 }
 .ai-recommend-button {
   margin-top: 12rpx;
@@ -108,52 +70,7 @@ swiper-item image {
 .ai-explore-missing { margin: 14rpx 0 24rpx; padding: 14rpx 18rpx; border-radius: 12rpx; background: #fff5e5; color: #8a5a25; font-size: 22rpx; line-height: 32rpx; }
 .ai-explore-step { display: flex; gap: 16rpx; color: #625747; font-size: 23rpx; line-height: 36rpx; margin-bottom: 14rpx; }
 .ai-explore-step-number { width: 32rpx; height: 32rpx; line-height: 32rpx; text-align: center; flex-shrink: 0; border-radius: 50%; background: #f4e2c8; color: #8a5a25; font-size: 20rpx; }
-.goods-container{
-  display: flex;
-  justify-content: space-between;
-  flex-wrap:wrap;
-  box-sizing: border-box;
-  padding: 0 24rpx;
-}
-.goods-box{
-  width: 339rpx;
-  min-height: 430rpx;
-  overflow: hidden;
-  margin-bottom: 24rpx;
-  border-radius: 20rpx;
-  background: #fffaf0;
-  border: 1rpx solid #eee5d4;
-  box-sizing: border-box;
-}
-.goods-box .img-box{
-  width: 100%;
-  height: 310rpx;
-  overflow: hidden;
-}
-.goods-box .img-box image{
-   width: 100%;
-   height: 310rpx;
-}
-.goods-box .goods-title{
-  width: auto;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-  font-size: 29rpx;
-  line-height: 40rpx;
-  font-weight: 600;
-  padding: 16rpx 18rpx 0;
-  color: #352d25;
-}
-.goods-box .goods-price{
-  width: auto;
-  overflow: hidden;
-  font-size: 23rpx;
-  line-height: 34rpx;
-  padding: 4rpx 18rpx 16rpx;
-  color: #9b8e79;
-}
-.dinner-entry, .shared-entry {
+.shared-entry {
   margin: 28rpx 24rpx 0;
   padding: 28rpx 30rpx;
   display: flex;
@@ -178,38 +95,4 @@ swiper-item image {
 .entry-action {
   color: #e64340;
   font-size: 26rpx;
-}
-.empty-text {
-  padding: 60rpx 0;
-  color: #999;
-  font-size: 28rpx;
-  text-align: center;
-}
-.recent-wrap {
-  padding-bottom: 40rpx;
-}
-.recent-list {
-  display: flex;
-  flex-wrap: wrap;
-  padding: 0 24rpx;
-}
-.recent-item {
-  margin: 0 16rpx 16rpx 0;
-  padding: 10rpx 20rpx;
-  color: #6e4f21;
-  background: #fffaf0;
-  border: 1rpx solid #eee0c0;
-  border-radius: 28rpx;
-  font-size: 24rpx;
-}
-.weui-cells {
-  background:none;
-  font-size: 26rpx;
-  line-height: 26rpx;
-}
-.weui-cells image {
-  margin-right: 5px;
-  vertical-align: middle;
-  width:30rpx;
-  height: 30rpx;
 }

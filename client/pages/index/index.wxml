@@ -1,19 +1,10 @@
 <view class="page">
   <view class="page__bd">
-    <view class="swiper-container" wx:if="{{bannerList.length > 0}}">
-      <swiper class="swiper_box" autoplay="true" bindchange="swiperchange">
-        <block wx:for="{{bannerList}}" wx:key="id">
-          <swiper-item>
-            <image bindtap="tapBanner" data-item="{{item}}" src="{{item.picUrl}}" mode="aspectFill" />
-          </swiper-item>
-        </block>
-      </swiper>
-      <view class="dots">
-        <block wx:for="{{bannerList}}" wx:key="id">
-          <view class="dot{{index == swiperCurrent ? ' active' : ''}}"></view>
-        </block>
-      </view>
-    </view>
+    <swiper class="home-banner" wx:if="{{bannerList.length > 0}}" autoplay="{{bannerList.length > 1}}" circular="{{bannerList.length > 1}}" indicator-dots="{{bannerList.length > 1}}" interval="5000" indicator-color="rgba(255,255,255,0.55)" indicator-active-color="#ffffff">
+      <swiper-item wx:for="{{bannerList}}" wx:key="id">
+        <image class="home-banner-image" src="{{item.picUrl}}" mode="aspectFill" bindtap="tapBanner" data-item="{{item}}" />
+      </swiper-item>
+    </swiper>
 
     <view class="shared-entry" wx:if="{{sharedPlan}}" bindtap="goSharedPlan">
       <view>
@@ -21,14 +12,6 @@
         <view class="entry-desc">共 {{sharedPlan.items.length}} 道，{{sharedPlan.feeding_total}} 投喂值</view>
       </view>
       <view class="entry-action">打开</view>
-    </view>
-
-    <view class="dinner-entry" bindtap="goDinnerPlan">
-      <view>
-        <view class="entry-title">今晚安排</view>
-        <view class="entry-desc">把想吃的菜先放进今晚菜单</view>
-      </view>
-      <view class="entry-action">去看看</view>
     </view>
 
     <view class="ai-recommend">
@@ -39,10 +22,6 @@
         <view class="ai-recommend-mode {{recommendationMode == 'explore' ? 'is-active' : ''}}" data-mode="explore" bindtap="switchRecommendationMode">探索新做法</view>
       </view>
       <textarea class="ai-recommend-input" placeholder="比如：有番茄和鸡蛋，想吃清淡的，半小时做好" maxlength="200" value="{{recommendationText}}" bindinput="onRecommendationInput" auto-height="true" />
-      <view class="ai-recommend-examples">
-        <view class="ai-recommend-example" data-text="有番茄和鸡蛋，想吃清淡的" bindtap="fillRecommendationExample">清淡一点</view>
-        <view class="ai-recommend-example" data-text="今天有点累，想吃简单快手的菜" bindtap="fillRecommendationExample">简单快手</view>
-      </view>
       <button class="ai-recommend-button" bindtap="askRecommendation" loading="{{recommendationLoading}}" disabled="{{recommendationLoading}}">{{recommendationMode == 'explore' ? '探索新做法' : '帮我推荐'}}</button>
       <view class="ai-recommend-message" wx:if="{{recommendationMessage}}">{{recommendationMessage}}</view>
       <view class="ai-recommend-results" wx:if="{{recommendationItems.length > 0}}">
@@ -80,25 +59,6 @@
             </view>
           </view>
         </view>
-      </view>
-    </view>
-
-    <view class="recommend-title">今日推荐</view>
-    <view class="empty-text" wx:if="{{goodsRecommend.length === 0}}">今天还没想好吃什么</view>
-    <view class="goods-container" wx:else>
-      <view class="goods-box" wx:for-items="{{goodsRecommend}}" wx:key="id" bindtap="toDetailsTap" data-id="{{item.id}}">
-        <view class="img-box">
-          <image src="{{item.pic}}" class="image" mode="aspectFill" lazy-load="true" />
-        </view>
-        <view class="goods-title">{{item.name}}</view>
-        <view class="goods-price">{{item.feeding_value}}投喂值</view>
-      </view>
-    </view>
-
-    <view class="recent-wrap" wx:if="{{recentFoods.length > 0}}">
-      <view class="recommend-title">最近想吃</view>
-      <view class="recent-list">
-        <view class="recent-item" wx:for="{{recentFoods}}" wx:key="*this">{{item}}</view>
       </view>
     </view>
   </view>

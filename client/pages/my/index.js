@@ -1,8 +1,4 @@
 Page({
-  data: {
-    nickName: "一起吃饭叭",
-    avatarUrl: "/images/kefu.png"
-  },
   goEatRecords: function() {
     wx.navigateTo({
       url: "/pages/eat-records/index"

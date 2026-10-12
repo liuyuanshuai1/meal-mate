@@ -1,39 +1,62 @@
 .profile {
-  margin: 24rpx 24rpx 18rpx;
-  padding: 34rpx 30rpx;
-  display: flex;
-  align-items: center;
-  border: 1rpx solid #eee5d4;
-  border-radius: 22rpx;
-  background: #fffaf0;
+  padding: 50rpx 42rpx 58rpx;
+  border-radius: 0 0 36rpx 36rpx;
+  background: #eedbc1;
 }
-.avatar {
-  width: 112rpx;
-  height: 112rpx;
-  border-radius: 56rpx;
-  background: #f5e8d2;
+.profile-label {
+  color: #94664e;
+  font-size: 23rpx;
+  font-weight: 600;
+  letter-spacing: 3rpx;
 }
-.nickname {
-  margin-left: 24rpx;
-  color: #352d25;
-  font-size: 31rpx;
+.profile-title {
+  margin-top: 22rpx;
+  color: #3e3027;
+  font-size: 48rpx;
+  line-height: 1.25;
+  font-weight: 700;
+}
+.profile-description {
+  margin-top: 12rpx;
+  color: #806a59;
+  font-size: 25rpx;
+  line-height: 1.5;
+}
+.menu-group {
+  margin: 38rpx 24rpx 0;
+}
+.menu-group-secondary {
+  margin-top: 32rpx;
+  padding-bottom: 48rpx;
+}
+.menu-group-title {
+  margin: 0 12rpx 16rpx;
+  color: #8c7967;
+  font-size: 23rpx;
   font-weight: 600;
 }
 .menu-list {
-  margin: 0 24rpx 30rpx;
-  padding: 0 26rpx;
+  padding: 0 28rpx;
   border: 1rpx solid #eee5d4;
   border-radius: 22rpx;
   background: #fffaf0;
 }
 .menu-item {
   min-height: 96rpx;
-  line-height: 96rpx;
-  padding: 0 34rpx 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   color: #4b4034;
   font-size: 27rpx;
-  border-bottom: 1rpx solid #eee0c0;
-  background: url(/images/arrow-right.png) no-repeat right center;
-  background-size: 16rpx auto;
+  border-bottom: 1rpx solid #eee5d4;
 }
 .menu-item:last-child { border-bottom: 0; }
+.menu-chevron {
+  color: #ac9881;
+  font-size: 40rpx;
+  line-height: 1;
+}
+.menu-soon {
+  color: #ad9c8a;
+  font-size: 21rpx;
+}
