@@ -18,6 +18,9 @@ class DinnerPlanItemOut(BaseModel):
     food_id: int
     food_name: str
     food_image_url: str | None
+    recipe_cook_minutes: int | None
+    recipe_ingredients: list[dict[str, str]]
+    recipe_steps: list[str]
     quantity: int
     feeding_value: int
     cook_user_id: int

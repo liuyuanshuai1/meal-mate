@@ -72,7 +72,12 @@ async def test_two_people_share_and_complete_dinner_plan(
     food = (
         await client.post(
             "/api/foods",
-            json={"category_id": category["id"], "name": "番茄炒蛋", "feeding_value": 12},
+            json={
+                "category_id": category["id"], "name": "番茄炒蛋", "feeding_value": 12,
+                "recipe_status": "published", "cook_minutes": 15,
+                "ingredients": [{"name": "番茄", "amount": "2个"}, {"name": "鸡蛋", "amount": "3个"}],
+                "recipe_steps": ["番茄切块，鸡蛋打散。", "先炒鸡蛋，再加入番茄炒熟。"],
+            },
             headers=admin_headers,
         )
     ).json()["data"]
@@ -97,11 +102,25 @@ async def test_two_people_share_and_complete_dinner_plan(
     ).json()["data"]
     assert [item["cook_user_id"] for item in plan["items"]] == [owner_id, partner_id]
     assert plan["items"][0]["feeding_value"] == 12
+    assert plan["items"][0]["recipe_cook_minutes"] == 15
+    assert plan["items"][0]["recipe_ingredients"][0] == {"name": "番茄", "amount": "2个"}
+    assert plan["items"][0]["recipe_steps"][1] == "先炒鸡蛋，再加入番茄炒熟。"
+    assert plan["items"][1]["recipe_steps"] == []
     assert plan["feeding_total"] == 27
 
     partner_plan = (await client.get("/api/dinner-plans/current", headers=partner)).json()["data"]
     assert partner_plan["id"] == plan["id"]
     assert partner_plan["creator_name"] == "小明本人"
+    assert partner_plan["items"][0]["recipe_steps"] == plan["items"][0]["recipe_steps"]
+
+    changed = await client.put(
+        f"/api/foods/{food['id']}",
+        json={"recipe_steps": ["新版做法。"]},
+        headers=admin_headers,
+    )
+    assert changed.json()["code"] == 0
+    still_original = (await client.get(f"/api/dinner-plans/{plan['id']}", headers=partner)).json()["data"]
+    assert still_original["items"][0]["recipe_steps"] == plan["items"][0]["recipe_steps"]
 
     select_count = 0
 

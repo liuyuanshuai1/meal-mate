@@ -8,11 +8,26 @@
   <view class="card" wx:if="{{plan}}">
     <view class="headline">今晚菜单</view>
     <view class="cook-note">每道菜的做菜人会分别获得对应投喂值</view>
-    <view class="food" wx:for="{{plan.items}}" wx:key="id">
-      <image class="food-image" src="{{item.food_image_url}}" mode="aspectFill"></image>
-      <view class="food-name">{{item.food_name}}</view>
-      <view class="food-count">× {{item.quantity}}</view>
-      <view class="food-price">{{item.cook_name}} +{{item.cook_reward}} 投喂值</view>
+    <view class="plan-food" wx:for="{{plan.items}}" wx:key="id">
+      <view class="food" data-id="{{item.id}}" bindtap="toggleRecipe">
+        <image class="food-image" src="{{item.food_image_url}}" mode="aspectFill"></image>
+        <view class="food-body">
+          <view class="food-top"><text class="food-name">{{item.food_name}}</text><text class="food-count">× {{item.quantity}}</text></view>
+          <view class="food-price">{{item.cook_name}} +{{item.cook_reward}} 投喂值</view>
+          <view class="recipe-link" wx:if="{{item.recipe_steps.length > 0}}">{{expandedRecipeItemId == item.id ? '收起做法 ⌃' : '查看做法 ›'}}</view>
+          <view class="recipe-unavailable" wx:else>暂无做法</view>
+        </view>
+      </view>
+      <view class="plan-recipe" wx:if="{{expandedRecipeItemId == item.id && item.recipe_steps.length > 0}}">
+        <view class="plan-recipe-heading">需要准备 <text class="plan-recipe-time">约 {{item.recipe_cook_minutes}} 分钟</text></view>
+        <view class="plan-ingredient" wx:for="{{item.recipe_ingredients}}" wx:for-item="ingredient" wx:key="name">
+          <text>{{ingredient.name}}</text><text>{{ingredient.amount}}</text>
+        </view>
+        <view class="plan-recipe-heading plan-steps-heading">怎么做</view>
+        <view class="plan-step" wx:for="{{item.recipe_steps}}" wx:for-item="step" wx:for-index="stepIndex" wx:key="*this">
+          <view class="plan-step-number">{{stepIndex + 1}}</view><view class="plan-step-text">{{step}}</view>
+        </view>
+      </view>
     </view>
     <view class="total">合计 {{plan.feeding_total}} 投喂值</view>
     <view class="earned-total">完成后按每道菜的做菜人分别入账，共 {{plan.feeding_total}} 投喂值</view>

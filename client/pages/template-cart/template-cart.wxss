@@ -97,6 +97,7 @@
     line-height: 32rpx;
     color:#9b8e79;
 }
+.recipe-entry { width: fit-content; margin: 8rpx 0 0; color: #c65a49; font-size: 23rpx; line-height: 34rpx; }
 .goods-info .text-box .buy-num{
     width: 164rpx;
     height: 48rpx;

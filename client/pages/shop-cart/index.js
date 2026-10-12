@@ -56,6 +56,11 @@ Page({
       url: "/pages/category/category"
     })
   },
+  viewRecipe: function(e) {
+    const foodId = Number(e.currentTarget.dataset.id)
+    if (!foodId) return
+    wx.navigateTo({ url: '/pages/goods-details/index?id=' + foodId })
+  },
   touchS: function(e) {
     if (e.touches.length == 1) {
       this.setData({

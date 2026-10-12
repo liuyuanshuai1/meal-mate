@@ -101,6 +101,21 @@ class DinnerPlanService:
                     food_id=item.food_id,
                     food_name=food_map[item.food_id].name,
                     food_image_url=food_map[item.food_id].image_url,
+                    recipe_cook_minutes=(
+                        food_map[item.food_id].cook_minutes
+                        if food_map[item.food_id].recipe_status == "published"
+                        else None
+                    ),
+                    recipe_ingredients=(
+                        food_map[item.food_id].ingredients
+                        if food_map[item.food_id].recipe_status == "published"
+                        else []
+                    ),
+                    recipe_steps=(
+                        food_map[item.food_id].recipe_steps
+                        if food_map[item.food_id].recipe_status == "published"
+                        else []
+                    ),
                     quantity=item.quantity,
                     feeding_value=food_map[item.food_id].feeding_value,
                     cook_user_id=item.cook_user_id,

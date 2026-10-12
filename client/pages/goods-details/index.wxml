@@ -15,6 +15,7 @@
         <view class="recipe-step-text">{{item}}</view>
       </view>
     </view>
+    <view class="recipe-empty" wx:elif="{{goodsDetail.basicInfo.id}}">这道菜暂时还没有发布做法</view>
     <view class='goods-price'>{{goodsDetail.basicInfo.feeding_value}}投喂值</view>
     <view wx:if="{{goodsDetail.properties && goodsDetail.properties.length > 0}}" class="size-label-box">
       <block wx:for="{{goodsDetail.properties}}" wx:for-item="property" wx:for-index="idx" wx:key="id">

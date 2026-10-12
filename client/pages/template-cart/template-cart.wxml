@@ -22,6 +22,7 @@
                         <view class="goods-title">{{item.name}}</view>
                         <view class="goods-label">{{item.label}}</view>
                         <view class="goods-price">每份 {{item.feeding_value}} 投喂值 · 共 {{item.total_feeding_value}} 投喂值</view>
+                        <view class="recipe-entry" data-id="{{item.goodsId}}" catchtap="viewRecipe">查看做法 ›</view>
                         <view class="cook-select-row">
                             <view class="cook-label">这道菜谁来做？</view>
                             <view class="cook-chip {{item.cook_user_id == cook.user_id ? 'active' : ''}}" wx:for="{{item.cook_options}}" wx:for-item="cook" wx:key="user_id" data-index="{{foodIndex}}" data-user-id="{{cook.user_id}}" catchtap="selectCook">

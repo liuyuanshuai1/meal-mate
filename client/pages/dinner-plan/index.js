@@ -4,7 +4,8 @@ Page({
   data: {
     plan: null,
     loading: true,
-    submitting: false
+    submitting: false,
+    expandedRecipeItemId: null
   },
   onShow: function() {
     this.loadPlan()
@@ -23,11 +24,18 @@ Page({
             cook_reward: Number(item.feeding_value || 0) * Number(item.quantity || 0)
           }))
         }
-        this.setData({ plan })
+        this.setData({ plan, expandedRecipeItemId: null })
       }
     }).catch(() => {
       wx.showToast({ title: '加载失败，请检查网络', icon: 'none' })
     }).finally(() => this.setData({ loading: false }))
+  },
+  toggleRecipe: function(e) {
+    const itemId = Number(e.currentTarget.dataset.id)
+    if (!itemId || !this.data.plan) return
+    const item = (this.data.plan.items || []).find(candidate => candidate.id === itemId)
+    if (!item || !item.recipe_steps || !item.recipe_steps.length) return
+    this.setData({ expandedRecipeItemId: this.data.expandedRecipeItemId === itemId ? null : itemId })
   },
   completePlan: function() {
     this.updatePlan('completeDinnerPlan', '这顿饭已记录')
