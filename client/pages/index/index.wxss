@@ -80,7 +80,13 @@
   border: 1rpx solid #eee0c0;
   border-radius: 20rpx;
 }
-.shared-entry { background: #fff2ef; border-color: #f1c4bd; }
+.shared-entry { display: block; background: #fff2ef; border-color: #f1c4bd; }
+.entry-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12rpx; }
+.entry-tag { color: #a65545; font-size: 22rpx; font-weight: 600; }
+.entry-unread { padding: 4rpx 12rpx; border-radius: 20rpx; background: #d45e4b; color: #fff; font-size: 20rpx; }
+.entry-actions { display: flex; gap: 16rpx; margin-top: 22rpx; }
+.entry-actions .entry-action { flex: 1; padding: 14rpx 0; border-radius: 12rpx; background: #fff; text-align: center; color: #a65545; font-size: 24rpx; }
+.entry-actions .entry-action-shopping { background: #d45e4b; color: #fff; }
 .entry-title {
   font-size: 30rpx;
   color: #352d25;

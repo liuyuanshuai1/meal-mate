@@ -6,6 +6,11 @@ const {
   noSelect
 } = require('../../utils/dinner-plan.js')
 
+function dateText(date) {
+  const pad = value => String(value).padStart(2, '0')
+  return date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate())
+}
+
 Page({
   data: {
     goodsList: {
@@ -16,6 +21,11 @@ Page({
     },
     delBtnWidth: 120,
     submitting: false,
+    reservationEnabled: false,
+    reservationDate: '',
+    reservationTime: '18:00',
+    minDate: '',
+    maxDate: '',
     members: [],
     feedingTotal: 0,
     unassignedCount: 0
@@ -36,6 +46,12 @@ Page({
   },
   onLoad: function() {
     this.initEleWidth()
+    const today = new Date()
+    const tomorrow = new Date(today.getTime())
+    tomorrow.setDate(tomorrow.getDate() + 1)
+    const latest = new Date(today.getTime())
+    latest.setDate(latest.getDate() + 30)
+    this.setData({ minDate: dateText(today), maxDate: dateText(latest), reservationDate: dateText(tomorrow) })
   },
   onShow: function() {
     const shopCarInfo = wx.getStorageSync('shopCarInfo') || {}
@@ -140,6 +156,15 @@ Page({
     list[index].cook_user_id = Number(e.currentTarget.dataset.userId)
     this.setGoodsList(this.data.goodsList.saveHidden, list)
   },
+  toggleReservation: function(e) {
+    this.setData({ reservationEnabled: !!e.detail.value })
+  },
+  changeReservationDate: function(e) {
+    this.setData({ reservationDate: e.detail.value })
+  },
+  changeReservationTime: function(e) {
+    this.setData({ reservationTime: e.detail.value })
+  },
   bindAllSelect: function() {
     const currentAllSelect = this.data.goodsList.allSelect
     const list = this.data.goodsList.list
@@ -205,9 +230,19 @@ Page({
     if (this.data.submitting) {
       return
     }
+    const payload = buildDinnerPlanPayload(list)
+    if (this.data.reservationEnabled) {
+      const scheduled = new Date(this.data.reservationDate + 'T' + this.data.reservationTime + ':00')
+      const minutesUntil = (scheduled.getTime() - Date.now()) / 60000
+      if (!Number.isFinite(minutesUntil) || minutesUntil < 10 || minutesUntil > 30 * 24 * 60) {
+        wx.showToast({ title: '请选择 10 分钟后、30 天内的时间', icon: 'none' })
+        return
+      }
+      payload.scheduled_for = scheduled.toISOString()
+    }
     this.setData({ submitting: true })
     wx.showLoading({ title: '发送中' })
-    WXAPI.diningGroupCurrent().then(groupRes => {
+    return WXAPI.diningGroupCurrent().then(groupRes => {
       if (groupRes.code !== 0) {
         return groupRes
       }
@@ -218,7 +253,7 @@ Page({
         wx.navigateTo({ url: '/pages/partner/index' })
         return null
       }
-      return WXAPI.createDinnerPlan(buildDinnerPlanPayload(list))
+      return WXAPI.createDinnerPlan(payload)
     }).then(res => {
       if (!res) {
         return
@@ -236,11 +271,11 @@ Page({
           }
         })
         wx.showToast({
-          title: '已发给饭搭子',
+          title: this.data.reservationEnabled ? '预约已发给饭搭子' : '已发给饭搭子',
           icon: 'success'
         })
         wx.navigateTo({
-          url: "/pages/dinner-plan/index"
+          url: "/pages/dinner-plan/index?id=" + res.data.id
         })
         return
       }

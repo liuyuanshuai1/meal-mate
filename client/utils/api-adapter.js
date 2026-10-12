@@ -105,9 +105,17 @@ function adaptDinnerPlanResponse(res) {
   })
 }
 
+function adaptDinnerPlansResponse(res) {
+  if (!res || res.code !== 0 || !Array.isArray(res.data)) return res
+  return Object.assign({}, res, {
+    data: res.data.map(plan => adaptDinnerPlanResponse({ code: 0, data: plan }).data)
+  })
+}
+
 module.exports = {
   adaptBannersResponse,
   adaptDinnerPlanResponse,
+  adaptDinnerPlansResponse,
   adaptFood,
   adaptFoodsResponse,
   adaptFoodDetailResponse,

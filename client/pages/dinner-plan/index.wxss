@@ -1,6 +1,15 @@
 .plan-page { padding: 32rpx 28rpx; box-sizing: border-box; }
 .card, .empty { padding: 32rpx; border: 1rpx solid #eee5d4; border-radius: 24rpx; background: #fffaf0; }
 .headline, .empty-title { margin-bottom: 20rpx; font-size: 34rpx; line-height: 46rpx; font-weight: 600; color: #352d25; }
+.plan-time { margin-top: -12rpx; margin-bottom: 14rpx; color: #a65545; font-size: 25rpx; font-weight: 600; }
+.plan-tabs { display: flex; gap: 12rpx; padding: 8rpx; margin: 4rpx 0 14rpx; border-radius: 16rpx; background: #f4ead8; }
+.plan-tab { flex: 1; padding: 13rpx 0; border-radius: 12rpx; text-align: center; color: #806f5c; font-size: 25rpx; }
+.plan-tab.is-active { background: #fff; color: #b55243; font-weight: 600; }
+.shopping-title { margin: 28rpx 0 12rpx; color: #352d25; font-size: 27rpx; font-weight: 600; }
+.shopping-item { display: flex; justify-content: space-between; gap: 20rpx; padding: 16rpx 0; border-bottom: 1rpx solid #eee5d4; color: #55493e; font-size: 25rpx; }
+.shopping-item text:last-child { color: #8c7055; text-align: right; }
+.shopping-note { margin-top: 22rpx; padding: 18rpx; border-radius: 12rpx; background: #fff2e0; color: #8a5a25; font-size: 23rpx; line-height: 34rpx; }
+.shopping-hint, .shopping-empty { margin: 22rpx 0; color: #968975; font-size: 22rpx; line-height: 34rpx; }
 .cook-note { margin: 0 0 20rpx; color: #9b705c; font-size: 24rpx; line-height: 36rpx; }
 .hint { margin-bottom: 28rpx; color: #817767; font-size: 26rpx; line-height: 40rpx; }
 .plan-food { border-bottom: 1rpx solid #eee0c0; }

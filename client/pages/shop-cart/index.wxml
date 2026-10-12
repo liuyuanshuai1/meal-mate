@@ -2,7 +2,7 @@
 <view class="page">
   <view class="page__bd">
     <view class="container">
-      <template is="{{goodsList.list.length > 0 ? 'cart-goods-list' : 'no-goods'}}" data="{{...goodsList, unassignedCount: unassignedCount}}"></template>
+      <template is="{{goodsList.list.length > 0 ? 'cart-goods-list' : 'no-goods'}}" data="{{...goodsList, unassignedCount: unassignedCount, reservationEnabled: reservationEnabled, reservationDate: reservationDate, reservationTime: reservationTime, minDate: minDate, maxDate: maxDate}}"></template>
     </view>
   </view>
 </view>

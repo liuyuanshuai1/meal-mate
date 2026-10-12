@@ -11,6 +11,7 @@ class DinnerPlanItemCreate(BaseModel):
 
 class DinnerPlanCreate(BaseModel):
     items: list[DinnerPlanItemCreate] = Field(min_length=1, max_length=30)
+    scheduled_for: datetime | None = None
 
 
 class DinnerPlanItemOut(BaseModel):
@@ -36,6 +37,8 @@ class DinnerPlanOut(BaseModel):
     creator_name: str
     status: str
     feeding_total: int
+    scheduled_for: datetime | None
+    notification_unread: bool
     created_at: datetime
     completed_at: datetime | None
     items: list[DinnerPlanItemOut]

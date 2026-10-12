@@ -1,10 +1,11 @@
 const WXAPI = require('../../wxapi/main')
 const { normalizeImageUrl } = require('../../utils/api-adapter.js')
+const { formatSchedule } = require('../../utils/dinner-plan.js')
 
 Page({
   data: {
     bannerList: [],
-    sharedPlan: null,
+    upcomingPlans: [],
     recommendationText: '',
     recommendationMode: 'menu',
     recommendationLoading: false,
@@ -20,16 +21,32 @@ Page({
   },
   onShow() {
     this.loadHome()
+    if (this.planRefreshTimer) clearInterval(this.planRefreshTimer)
+    this.planRefreshTimer = setInterval(() => this.loadPlans(), 30000)
+  },
+  onHide() {
+    if (this.planRefreshTimer) clearInterval(this.planRefreshTimer)
+    this.planRefreshTimer = null
+  },
+  onUnload() {
+    if (this.planRefreshTimer) clearInterval(this.planRefreshTimer)
   },
   loadHome() {
     WXAPI.banners().then(res => {
       if (res.code === 0) this.setData({ bannerList: res.data || [] })
-    })
-    WXAPI.dinnerPlanCurrent().then(res => {
+    }).catch(() => {})
+    return this.loadPlans()
+  },
+  loadPlans() {
+    return WXAPI.dinnerPlansUpcoming().then(res => {
       if (res.code === 0) {
-        this.setData({ sharedPlan: res.data && res.data.id ? res.data : null })
+        const plans = (res.data || []).map(plan => Object.assign({}, plan, { schedule_text: formatSchedule(plan.scheduled_for) }))
+        this.setData({ upcomingPlans: plans })
       }
-    })
+    }).catch(() => {})
+  },
+  onPullDownRefresh() {
+    this.loadPlans().finally(() => wx.stopPullDownRefresh())
   },
   toDetailsTap: function(e) {
     wx.navigateTo({
@@ -42,8 +59,10 @@ Page({
       wx.navigateTo({ url: '/pages/goods-details/index?id=' + item.businessId })
     }
   },
-  goSharedPlan: function() {
-    wx.navigateTo({ url: '/pages/dinner-plan/index' })
+  goSharedPlan: function(e) {
+    const tab = e && e.currentTarget && e.currentTarget.dataset.tab
+    const id = e && e.currentTarget && e.currentTarget.dataset.id
+    wx.navigateTo({ url: '/pages/dinner-plan/index?id=' + id + (tab === 'shopping' ? '&tab=shopping' : '') })
   },
   onRecommendationInput: function(e) {
     this.setData({ recommendationText: e.detail.value })

@@ -1,6 +1,6 @@
-from typing import cast
+from datetime import timedelta
 
-from sqlalchemy import Select, func, select
+from sqlalchemy import Select, case, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, lazyload, selectinload
 
@@ -36,21 +36,37 @@ class DinnerPlanService:
 
     @staticmethod
     async def current(db: AsyncSession, user_id: int) -> DinnerPlan | None:
+        plans = await DinnerPlanService.upcoming(db, user_id)
+        return plans[0] if plans else None
+
+    @staticmethod
+    async def upcoming(db: AsyncSession, user_id: int) -> list[DinnerPlan]:
         membership = await DiningGroupService.membership(db, user_id)
         if membership is None:
-            return None
-        return cast(
-            DinnerPlan | None,
-            await db.scalar(
-                DinnerPlanService._query()
-                .where(DinnerPlan.group_id == membership.group_id, DinnerPlan.status == "pending")
-                .order_by(DinnerPlan.created_at.desc(), DinnerPlan.id.desc())
-                .limit(1)
-            ),
+            return []
+        return list(
+            (
+                await db.scalars(
+                    DinnerPlanService._query()
+                    .where(DinnerPlan.group_id == membership.group_id, DinnerPlan.status == "pending")
+                    .order_by(
+                        case((DinnerPlan.scheduled_for.is_(None), 0), else_=1),
+                        DinnerPlan.scheduled_for.asc(),
+                        DinnerPlan.created_at.desc(),
+                    )
+                    .limit(31)
+                )
+            ).all()
         )
 
     @staticmethod
     async def create(db: AsyncSession, user: User, payload: DinnerPlanCreate) -> DinnerPlan:
+        if payload.scheduled_for is not None:
+            if payload.scheduled_for.tzinfo is None or payload.scheduled_for.utcoffset() is None:
+                raise AppException(40001, "预约时间需要包含时区")
+            now = now_tz()
+            if not now + timedelta(minutes=10) <= payload.scheduled_for <= now + timedelta(days=30):
+                raise AppException(40001, "请选择 10 分钟后、30 天内的预约时间")
         membership = await DiningGroupService.require_membership(db, user.id)
         await db.scalar(select(DiningGroup.id).where(DiningGroup.id == membership.group_id).with_for_update())
         member_count = await db.scalar(
@@ -60,6 +76,14 @@ class DinnerPlanService:
         )
         if member_count != 2:
             raise AppException(40001, "等饭搭子加入后再发送菜单")
+        if payload.scheduled_for is not None:
+            pending_count = await db.scalar(
+                select(func.count())
+                .select_from(DinnerPlan)
+                .where(DinnerPlan.group_id == membership.group_id, DinnerPlan.status == "pending")
+            )
+            if pending_count is not None and pending_count >= 30:
+                raise AppException(40001, "待吃的菜单太多，请先完成或取消一份")
         cook_ids = {item.cook_user_id for item in payload.items}
         cook_members = list(
             (
@@ -82,20 +106,26 @@ class DinnerPlanService:
         if len(food_map) != len(food_ids):
             raise AppException(40004, "菜单中有菜品不存在或已下架")
 
-        existing = await db.scalar(
-            select(DinnerPlan)
-            .options(lazyload(DinnerPlan.items), lazyload(DinnerPlan.creator))
-            .where(DinnerPlan.group_id == membership.group_id, DinnerPlan.status == "pending")
-            .limit(1)
-        )
-        if existing is not None:
-            existing.status = "cancelled"
+        if payload.scheduled_for is None:
+            existing = await db.scalar(
+                select(DinnerPlan)
+                .options(lazyload(DinnerPlan.items), lazyload(DinnerPlan.creator))
+                .where(
+                    DinnerPlan.group_id == membership.group_id,
+                    DinnerPlan.status == "pending",
+                    DinnerPlan.scheduled_for.is_(None),
+                )
+                .limit(1)
+            )
+            if existing is not None:
+                existing.status = "cancelled"
 
         feeding_total = sum(food_map[item.food_id].feeding_value * item.quantity for item in payload.items)
         plan = DinnerPlan(
             group_id=membership.group_id,
             creator=user,
             feeding_total=feeding_total,
+            scheduled_for=payload.scheduled_for,
             items=[
                 DinnerPlanItem(
                     food_id=item.food_id,
@@ -132,6 +162,14 @@ class DinnerPlanService:
     async def get(db: AsyncSession, user_id: int, plan_id: int) -> DinnerPlan:
         membership = await DiningGroupService.require_membership(db, user_id)
         return await DinnerPlanService._get_in_group(db, membership.group_id, plan_id)
+
+    @staticmethod
+    async def mark_seen(db: AsyncSession, user: User, plan_id: int) -> DinnerPlan:
+        plan = await DinnerPlanService.get(db, user.id, plan_id)
+        if plan.created_by != user.id and plan.partner_seen_at is None:
+            plan.partner_seen_at = now_tz()
+            await db.commit()
+        return plan
 
     @staticmethod
     async def complete(db: AsyncSession, user: User, plan_id: int) -> DinnerPlan:

@@ -1,4 +1,7 @@
+from datetime import timedelta
+
 import pytest
+from app.core.timezone import now_tz
 from app.models.user import User
 from httpx import AsyncClient
 from sqlalchemy import event
@@ -112,6 +115,12 @@ async def test_two_people_share_and_complete_dinner_plan(
     assert partner_plan["id"] == plan["id"]
     assert partner_plan["creator_name"] == "小明本人"
     assert partner_plan["items"][0]["recipe_steps"] == plan["items"][0]["recipe_steps"]
+    assert partner_plan["notification_unread"] is True
+    assert plan["notification_unread"] is False
+    seen = (await client.post(f"/api/dinner-plans/{plan['id']}/seen", headers=partner)).json()["data"]
+    assert seen["notification_unread"] is False
+    refreshed_partner_plan = (await client.get("/api/dinner-plans/current", headers=partner)).json()["data"]
+    assert refreshed_partner_plan["notification_unread"] is False
 
     changed = await client.put(
         f"/api/foods/{food['id']}",
@@ -163,6 +172,46 @@ async def test_group_name_rejects_whitespace(client: AsyncClient) -> None:
     response = (await client.post("/api/dining-groups", json={"name": "   "}, headers=owner)).json()
 
     assert response["code"] == 40001
+
+
+@pytest.mark.asyncio
+async def test_dinner_plan_can_be_reserved_for_both_diners(
+    client: AsyncClient, admin_headers: dict[str, str]
+) -> None:
+    owner, owner_id = await login(client, "booking-owner")
+    partner, _ = await login(client, "booking-partner")
+    group = (await client.post("/api/dining-groups", json={}, headers=owner)).json()["data"]
+    await client.post("/api/dining-groups/join", json={"invite_token": group["invite_token"]}, headers=partner)
+    food = (await client.post(
+        "/api/foods", json={"name": "预约的菜", "feeding_value": 8}, headers=admin_headers
+    )).json()["data"]
+    items = [{"food_id": food["id"], "quantity": 1, "cook_user_id": owner_id}]
+    invalid = (await client.post(
+        "/api/dinner-plans", json={"items": items, "scheduled_for": "2026-10-15T18:00:00"}, headers=owner
+    )).json()
+    assert invalid["code"] == 40001
+
+    scheduled_for = now_tz() + timedelta(days=2)
+    booked = (await client.post(
+        "/api/dinner-plans", json={"items": items, "scheduled_for": scheduled_for.isoformat()}, headers=owner
+    )).json()["data"]
+    assert booked["status"] == "pending"
+    assert booked["scheduled_for"] is not None
+    assert booked["notification_unread"] is False
+    partner_plan = (await client.get("/api/dinner-plans/current", headers=partner)).json()["data"]
+    assert partner_plan["id"] == booked["id"]
+    assert partner_plan["scheduled_for"] == booked["scheduled_for"]
+    assert partner_plan["notification_unread"] is True
+    next_week = now_tz() + timedelta(days=4)
+    second = (await client.post(
+        "/api/dinner-plans", json={"items": items, "scheduled_for": next_week.isoformat()}, headers=partner
+    )).json()["data"]
+    upcoming_owner = (await client.get("/api/dinner-plans/upcoming", headers=owner)).json()["data"]
+    upcoming_partner = (await client.get("/api/dinner-plans/upcoming", headers=partner)).json()["data"]
+    assert [plan["id"] for plan in upcoming_owner] == [booked["id"], second["id"]]
+    assert [plan["id"] for plan in upcoming_partner] == [booked["id"], second["id"]]
+    assert upcoming_owner[1]["notification_unread"] is True
+    assert upcoming_partner[0]["notification_unread"] is True
 
 
 @pytest.mark.asyncio

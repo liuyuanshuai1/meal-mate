@@ -6,12 +6,11 @@
       </swiper-item>
     </swiper>
 
-    <view class="shared-entry" wx:if="{{sharedPlan}}" bindtap="goSharedPlan">
-      <view>
-        <view class="entry-title">{{sharedPlan.creator_name}} 发来一份菜单</view>
-        <view class="entry-desc">共 {{sharedPlan.items.length}} 道，{{sharedPlan.feeding_total}} 投喂值</view>
-      </view>
-      <view class="entry-action">打开</view>
+    <view class="shared-entry" wx:for="{{upcomingPlans}}" wx:key="id">
+      <view class="entry-top"><text class="entry-tag">{{item.scheduled_for ? '预约菜单' : '今晚菜单'}}</text><text class="entry-unread" wx:if="{{item.notification_unread}}">新消息</text></view>
+      <view class="entry-title">{{item.notification_unread ? item.creator_name + '下单了' : '我们要吃这些'}}</view>
+      <view class="entry-desc">{{item.schedule_text}} · {{item.items.length}} 道菜 · {{item.feeding_total}} 投喂值</view>
+      <view class="entry-actions"><view class="entry-action" data-id="{{item.id}}" data-tab="menu" bindtap="goSharedPlan">查看菜单</view><view class="entry-action entry-action-shopping" data-id="{{item.id}}" data-tab="shopping" bindtap="goSharedPlan">买菜清单 ›</view></view>
     </view>
 
     <view class="ai-recommend">

@@ -28,6 +28,8 @@ class DinnerPlan(TimestampMixin, Base):
     )
     status: Mapped[str] = mapped_column(String(16), nullable=False, default="pending", server_default="pending")
     feeding_total: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
+    scheduled_for: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    partner_seen_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     group: Mapped["DiningGroup"] = relationship(back_populates="plans")

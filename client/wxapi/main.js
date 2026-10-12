@@ -2,6 +2,7 @@ const CONFIG = require('../config.js')
 const {
   adaptBannersResponse,
   adaptDinnerPlanResponse,
+  adaptDinnerPlansResponse,
   adaptFoodDetailResponse,
   adaptFoodsResponse,
   adaptRecordsResponse
@@ -122,8 +123,10 @@ module.exports = {
   deleteFeedingReward: (id) => withMessage(authorizedRequest('/feeding-values/rewards/' + id, 'delete')),
   redeemFeedingReward: (data) => withMessage(authorizedRequest('/feeding-values/redeem', 'post', data)),
   dinnerPlanCurrent: () => withMessage(authorizedRequest('/dinner-plans/current', 'get').then(adaptDinnerPlanResponse)),
+  dinnerPlansUpcoming: () => withMessage(authorizedRequest('/dinner-plans/upcoming', 'get').then(adaptDinnerPlansResponse)),
   createDinnerPlan: (data) => withMessage(authorizedRequest('/dinner-plans', 'post', data).then(adaptDinnerPlanResponse)),
   getDinnerPlan: (id) => withMessage(authorizedRequest('/dinner-plans/' + id, 'get').then(adaptDinnerPlanResponse)),
+  markDinnerPlanSeen: (id) => withMessage(authorizedRequest('/dinner-plans/' + id + '/seen', 'post')),
   completeDinnerPlan: (id) => withMessage(authorizedRequest('/dinner-plans/' + id + '/complete', 'post')),
   cancelDinnerPlan: (id) => withMessage(authorizedRequest('/dinner-plans/' + id + '/cancel', 'post')),
 

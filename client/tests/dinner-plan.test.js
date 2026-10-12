@@ -5,6 +5,7 @@ const {
   allSelect,
   appendRecordsPage,
   buildDinnerPlanPayload,
+  buildShoppingList,
   mergeShopCarItem,
   noSelect,
   removeRecordAfterDelete
@@ -55,6 +56,20 @@ test('builds server-backed dinner plan from selected items only', () => {
   assert.equal(payload.items.length, 1)
   assert.equal(payload.items[0].food_id, 1)
   assert.equal(payload.items[0].quantity, 1)
+})
+
+test('shopping list combines duplicate ingredients and scales portions', () => {
+  const shopping = buildShoppingList([
+    { food_name: '番茄炒蛋', quantity: 2, recipe_ingredients: [{ name: '番茄', amount: '2个' }, { name: '鸡蛋', amount: '3个' }] },
+    { food_name: '番茄汤', quantity: 1, recipe_ingredients: [{ name: '番茄', amount: '1个' }, { name: '盐', amount: '适量' }] },
+    { food_name: '米饭', quantity: 1, recipe_ingredients: [] }
+  ])
+  assert.deepEqual(shopping.items, [
+    { name: '番茄', amount: '5个' },
+    { name: '鸡蛋', amount: '6个' },
+    { name: '盐', amount: '适量' }
+  ])
+  assert.deepEqual(shopping.missingRecipes, ['米饭'])
 })
 
 test('appends record pages and preserves list on failed delete', () => {

@@ -1,13 +1,16 @@
 <view class="page plan-page">
   <view class="empty" wx:if="{{!loading && !plan}}">
-    <view class="empty-title">还没有待确认的菜单</view>
-    <view class="hint">饭搭子提交后，打开这里或下拉即可看到。</view>
+    <view class="empty-title">还没有待吃的菜单</view>
+    <view class="hint">点好菜后，两个人都能在首页看到。</view>
     <button class="secondary" bindtap="goChoose">去选菜</button>
   </view>
 
   <view class="card" wx:if="{{plan}}">
-    <view class="headline">今晚菜单</view>
+    <view class="headline">{{plan.scheduled_for ? '预约菜单' : '今晚菜单'}}</view>
+    <view class="plan-time">{{plan.schedule_text}} · {{plan.items.length}} 道菜</view>
     <view class="cook-note">每道菜的做菜人会分别获得对应投喂值</view>
+    <view class="plan-tabs"><view class="plan-tab {{activeTab == 'menu' ? 'is-active' : ''}}" bindtap="showMenu">菜单与做法</view><view class="plan-tab {{activeTab == 'shopping' ? 'is-active' : ''}}" bindtap="showShoppingList">买菜清单</view></view>
+    <view wx:if="{{activeTab == 'menu'}}">
     <view class="plan-food" wx:for="{{plan.items}}" wx:key="id">
       <view class="food" data-id="{{item.id}}" bindtap="toggleRecipe">
         <image class="food-image" src="{{item.food_image_url}}" mode="aspectFill"></image>
@@ -31,6 +34,14 @@
     </view>
     <view class="total">合计 {{plan.feeding_total}} 投喂值</view>
     <view class="earned-total">完成后按每道菜的做菜人分别入账，共 {{plan.feeding_total}} 投喂值</view>
+    </view>
+    <view class="shopping" wx:else>
+      <view class="shopping-title">这顿饭要买的食材</view>
+      <view class="shopping-item" wx:for="{{shoppingList}}" wx:key="name"><text>{{item.name}}</text><text>{{item.amount}}</text></view>
+      <view class="shopping-empty" wx:if="{{shoppingList.length == 0}}">菜单中的菜还没有配置食材</view>
+      <view class="shopping-note" wx:if="{{missingRecipes.length > 0}}">{{missingRecipesText}} 暂无做法和食材，请单独确认。</view>
+      <view class="shopping-hint">用量按菜单份数合并，采购前可按实际人数调整。</view>
+    </view>
     <button class="primary" bindtap="completePlan" loading="{{submitting}}">吃完啦</button>
     <button class="plain" bindtap="cancelPlan" disabled="{{submitting}}">取消这份菜单</button>
   </view>

@@ -11,7 +11,7 @@
         <view class="edit-btn" hidden="{{!saveHidden}}" bindtap="editTap">编辑</view>
         <view class="edit-btn" hidden="{{saveHidden}}" bindtap="saveTap">完成</view>
     </view>
-    <view class="goodsList">
+    <view class="goodsList {{saveHidden ? 'with-reservation' : ''}}">
         <view class="a-gooods" wx:for="{{list}}" wx:for-index="foodIndex" wx:key="cartKey" >
             <view class="a-goods-conts {{item.active? 'active':''}}" bindtap="selectTap" bindtouchstart="touchS" bindtouchmove="touchM" bindtouchend="touchE" data-index="{{foodIndex}}"    style="{{item.left}}">
                 <view class="goods-info">
@@ -42,6 +42,13 @@
             </view>
         </view>
     </view>
+    <view class="reservation-box" hidden="{{!saveHidden}}">
+        <view class="reservation-row"><view><view class="reservation-title">提前预约</view><view class="reservation-hint">选好时间，菜单会提前发给饭搭子</view></view><switch checked="{{reservationEnabled}}" color="#d45e4b" bindchange="toggleReservation" /></view>
+        <view class="reservation-pickers" wx:if="{{reservationEnabled}}">
+            <picker mode="date" value="{{reservationDate}}" start="{{minDate}}" end="{{maxDate}}" bindchange="changeReservationDate"><view class="reservation-picker">{{reservationDate}} <text>⌄</text></view></picker>
+            <picker mode="time" value="{{reservationTime}}" bindchange="changeReservationTime"><view class="reservation-picker">{{reservationTime}} <text>⌄</text></view></picker>
+        </view>
+    </view>
     <view class="jiesuan-box">
         <view class="left-price">
             <view class="all-selected  {{allSelect?'active':''}}" bindtap="bindAllSelect">全选</view>
@@ -49,7 +56,7 @@
             <view class="cook-status" wx:elif="{{unassignedCount > 0}}">还有 {{unassignedCount}} 道菜未选做菜人</view>
             <view class="cook-status" wx:else>每道菜都已选好做菜人</view>
         </view>
-        <view class="to-pay-btn {{noSelect?'no-select':''}}" hidden="{{!saveHidden}}" bindtap="toPayOrder">就吃这些</view>
+        <view class="to-pay-btn {{noSelect?'no-select':''}}" hidden="{{!saveHidden}}" bindtap="toPayOrder">{{reservationEnabled ? '预约这些菜' : '就吃这些'}}</view>
         <view class="to-pay-btn {{noSelect?'no-select':''}}" hidden="{{saveHidden}}" bindtap="deleteSelected">删除</view>
     </view>
 </template>

@@ -7,6 +7,11 @@ let exploredText = ''
 require.cache[wxapiPath] = {
   id: wxapiPath, filename: wxapiPath, loaded: true,
   exports: {
+    banners: () => Promise.resolve({ code: 0, data: [] }),
+    dinnerPlansUpcoming: () => Promise.resolve({ code: 0, data: [{
+      id: 23, creator_name: '小明', notification_unread: true,
+      scheduled_for: '2026-10-16T18:00:00+08:00', items: [{ id: 1 }], feeding_total: 12
+    }] }),
     recommendFoods: data => {
       requestedText = data.text
       return Promise.resolve({ code: 0, data: { items: [{ food_id: 7, name: '番茄炒蛋', cook_minutes: 15, reason: '正好用上现有食材' }] } })
@@ -59,4 +64,17 @@ test('exploration shows a generated recipe inline without navigating to a menu f
   assert.equal(page.data.expandedExplorationIndex, 0)
   page.toggleExplorationItem({ currentTarget: { dataset: { index: 0 } } })
   assert.equal(page.data.expandedExplorationIndex, -1)
+})
+
+test('home shows the shared booking and opens its shopping list', async () => {
+  const page = Object.assign({}, definition, {
+    data: Object.assign({}, definition.data),
+    setData(update) { Object.assign(this.data, update) }
+  })
+  page.loadHome()
+  await Promise.resolve()
+  assert.equal(page.data.upcomingPlans[0].notification_unread, true)
+  assert.match(page.data.upcomingPlans[0].schedule_text, /10月16日/)
+  page.goSharedPlan({ currentTarget: { dataset: { id: 23, tab: 'shopping' } } })
+  assert.equal(navigatedUrl, '/pages/dinner-plan/index?id=23&tab=shopping')
 })
