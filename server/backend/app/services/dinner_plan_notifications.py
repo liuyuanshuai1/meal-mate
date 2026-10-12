@@ -10,7 +10,7 @@ from app.models.dinner_plan import DinnerPlan
 
 logger = logging.getLogger(__name__)
 FIELD_KEY = re.compile(r"^(?:thing|name|phrase|character_string|time|date|number)\d+$")
-FIELD_VALUES = {"creator", "summary", "meal_time"}
+FIELD_VALUES = {"creator", "customer", "summary", "order_time", "meal_time"}
 
 
 def template_fields(settings: Settings) -> dict[str, str]:
@@ -27,7 +27,7 @@ def template_fields(settings: Settings) -> dict[str, str]:
         or not FIELD_KEY.fullmatch(key)
         or not isinstance(value, str)
         or value not in FIELD_VALUES
-        or (value == "meal_time" and not key.startswith(("time", "date")))
+        or (value in {"order_time", "meal_time"} and not key.startswith(("time", "date")))
         for key, value in fields.items()
     ):
         return {}
@@ -46,12 +46,17 @@ def notification_enabled(settings: Settings) -> bool:
 def notification_data(
     plan: DinnerPlan, creator_name: str, fields: dict[str, str], tz: str
 ) -> dict[str, dict[str, str]]:
-    meal_time = plan.scheduled_for or plan.created_at
+    order_time = plan.created_at
+    meal_time = plan.scheduled_for or order_time
+    if order_time.tzinfo is None:
+        order_time = order_time.replace(tzinfo=ZoneInfo(tz))
     if meal_time.tzinfo is None:
         meal_time = meal_time.replace(tzinfo=ZoneInfo(tz))
     values = {
         "creator": f"{creator_name}下单了"[:20],
+        "customer": creator_name[:20],
         "summary": f"共{sum(item.quantity for item in plan.items)}份，{len(plan.items)}道菜"[:20],
+        "order_time": order_time.astimezone(ZoneInfo(tz)).strftime("%Y-%m-%d %H:%M"),
         "meal_time": meal_time.astimezone(ZoneInfo(tz)).strftime("%Y-%m-%d %H:%M"),
     }
     return {key: {"value": values[value]} for key, value in fields.items()}

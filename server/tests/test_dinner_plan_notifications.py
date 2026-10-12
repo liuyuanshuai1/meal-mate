@@ -31,17 +31,23 @@ def test_template_configuration_requires_valid_fields() -> None:
         "wechat_app_id": "appid",
         "wechat_app_secret": "secret",
         "wechat_dinner_plan_template_id": "template-id",
-        "wechat_dinner_plan_template_fields": '{"thing1":"creator","thing2":"summary","time3":"meal_time"}',
+        "wechat_dinner_plan_template_fields": '{"thing2":"customer","time3":"order_time","time4":"meal_time"}',
     })
     assert notifications.notification_enabled(settings)
     data = notifications.notification_data(make_plan(), "小明", notifications.template_fields(settings), settings.tz)
     assert data == {
-        "thing1": {"value": "小明下单了"},
-        "thing2": {"value": "共3份，2道菜"},
-        "time3": {"value": "2026-10-13 19:30"},
+        "thing2": {"value": "小明"},
+        "time3": {"value": "2026-10-12 18:00"},
+        "time4": {"value": "2026-10-13 19:30"},
     }
-    invalid = settings.model_copy(update={"wechat_dinner_plan_template_fields": '{"thing1":"meal_time"}'})
+    invalid = settings.model_copy(update={"wechat_dinner_plan_template_fields": '{"thing2":"order_time"}'})
     assert not notifications.notification_enabled(invalid)
+    immediate = make_plan()
+    immediate.scheduled_for = None
+    immediate_data = notifications.notification_data(
+        immediate, "小明", notifications.template_fields(settings), settings.tz
+    )
+    assert immediate_data["time4"] == {"value": "2026-10-12 18:00"}
 
 
 @pytest.mark.asyncio
@@ -50,7 +56,7 @@ async def test_wechat_reminder_targets_partner_and_dinner_plan(monkeypatch: pyte
         "wechat_app_id": "appid",
         "wechat_app_secret": "secret",
         "wechat_dinner_plan_template_id": "template-id",
-        "wechat_dinner_plan_template_fields": '{"thing1":"creator","time2":"meal_time"}',
+        "wechat_dinner_plan_template_fields": '{"thing2":"customer","time3":"order_time","time4":"meal_time"}',
     })
     monkeypatch.setattr(notifications, "get_settings", lambda: settings)
     sent: list[dict[str, object]] = []
@@ -70,5 +76,9 @@ async def test_wechat_reminder_targets_partner_and_dinner_plan(monkeypatch: pyte
         "touser": "partner-openid",
         "template_id": "template-id",
         "page": "pages/dinner-plan/index?id=42",
-        "data": {"thing1": {"value": "小明下单了"}, "time2": {"value": "2026-10-13 19:30"}},
+        "data": {
+            "thing2": {"value": "小明"},
+            "time3": {"value": "2026-10-12 18:00"},
+            "time4": {"value": "2026-10-13 19:30"},
+        },
     }]

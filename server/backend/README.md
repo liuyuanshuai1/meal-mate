@@ -90,10 +90,10 @@ For server deployment, copy `../docker-compose.server.example.yml` to `../docker
 
 ```dotenv
 WECHAT_DINNER_PLAN_TEMPLATE_ID=实际模板ID
-WECHAT_DINNER_PLAN_TEMPLATE_FIELDS={"thing1":"creator","thing2":"summary","time3":"meal_time"}
+WECHAT_DINNER_PLAN_TEMPLATE_FIELDS={"thing2":"customer","time3":"order_time","time4":"meal_time"}
 ```
 
-字段名必须使用模板详情中的实际字段名。右侧只能选 `creator`（“某某下单了”）、`summary`（菜品份数和道数）、`meal_time`（就餐时间）；时间需映射到 `time` 或 `date` 字段。配置后重启后端，饭搭子页面才会出现「订阅下次下单提醒」按钮。每位收件人需要自行点击授权；一次性订阅通常只覆盖下一条提醒，用完需再次订阅。微信发送失败不影响下单或应用内提醒。
+字段名必须使用模板详情中的实际字段名。右侧可选 `customer`（下单人的显示名）、`creator`（“某某下单了”）、`summary`（菜品份数和道数）、`order_time`（下单时间）、`meal_time`（就餐时间）。时间需映射到 `time` 或 `date` 字段。配置后重启后端；Docker 镜像部署需要重新构建镜像并重启容器。饭搭子页面随后出现「订阅下次下单提醒」按钮。每位收件人需要自行点击授权；一次性订阅通常只覆盖下一条提醒，用完需再次订阅。微信发送失败不影响下单或应用内提醒。
 
 推荐仅从已上架且做法已发布的菜品中选取；已有菜品需要在 `/admin/foods` 补齐食材、用时、步骤并发布做法。后台的“AI 生成草稿”只生成待人工审核的内容，不会自动发布。迁移后原有菜品默认处于做法草稿状态，发布前不会进入智能推荐。
 
