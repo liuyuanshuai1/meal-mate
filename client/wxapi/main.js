@@ -109,6 +109,7 @@ module.exports = {
   foods: (data) => withMessage(request('/foods', 'get', data).then(adaptFoodsResponse)),
   foodDetail: (id) => withMessage(request('/foods/' + id, 'get').then(adaptFoodDetailResponse)),
   recommendFoods: (data) => withMessage(authorizedRequest('/recommendations', 'post', data)),
+  exploreRecipes: (data) => withMessage(authorizedRequest('/recipes/explore', 'post', data)),
   eatRecords: (data) => withMessage(authorizedRequest('/eat-records', 'get', data).then(adaptRecordsResponse)),
   deleteEatRecord: (id) => withMessage(authorizedRequest('/eat-records/' + id, 'delete')),
   diningGroupCurrent: () => withMessage(authorizedRequest('/dining-groups/current', 'get')),

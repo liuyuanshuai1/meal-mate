@@ -85,3 +85,5 @@ For server deployment, copy `../docker-compose.server.example.yml` to `../docker
 首页推荐调用服务端 `/api/recommendations`。直接运行后端或使用 `docker-compose.server.yml` 时，在 `backend/.env` 配置 `DEEPSEEK_API_KEY`；使用 `server/docker-compose.yml` 时，在 `server/.env` 配置。可用 `DEEPSEEK_MODEL` 指定模型（默认 `deepseek-flash`）。密钥只保留在服务端。
 
 推荐仅从已上架且做法已发布的菜品中选取；已有菜品需要在 `/admin/foods` 补齐食材、用时、步骤并发布做法。后台的“AI 生成草稿”只生成待人工审核的内容，不会自动发布。迁移后原有菜品默认处于做法草稿状态，发布前不会进入智能推荐。
+
+首页“探索新做法”调用 `POST /api/recipes/explore`，根据用户描述生成最多三份临时菜谱，展示食材、缺少的材料和步骤。探索结果不会写入菜单，也不能直接加入点餐或今晚菜单。接口需要用户登录，默认每位用户每天最多调用 20 次；可通过 `AI_EXPLORE_DAILY_LIMIT` 调整。新增的 `ai_explore_usage` 表需先运行 Alembic 迁移。

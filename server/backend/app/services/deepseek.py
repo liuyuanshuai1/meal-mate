@@ -9,7 +9,7 @@ from app.core.response import AppException
 DEEPSEEK_URL = "https://api.deepseek.com/chat/completions"
 
 
-def _request_json(system_prompt: str, user_data: object, max_tokens: int) -> dict[str, object]:
+def _request_json(system_prompt: str, user_data: object, max_tokens: int, timeout: int = 20) -> dict[str, object]:
     settings = get_settings()
     if not settings.deepseek_api_key:
         raise AppException(50300, "推荐服务尚未配置")
@@ -34,7 +34,7 @@ def _request_json(system_prompt: str, user_data: object, max_tokens: int) -> dic
         method="POST",
     )
     try:
-        with urlopen(request, timeout=20) as response:  # noqa: S310
+        with urlopen(request, timeout=timeout) as response:  # noqa: S310
             result = json.load(response)
         choice = result["choices"][0]
         if choice.get("finish_reason") != "stop":
@@ -48,5 +48,7 @@ def _request_json(system_prompt: str, user_data: object, max_tokens: int) -> dic
         raise AppException(50300, "暂时无法生成推荐，请稍后再试") from exc
 
 
-async def request_json(system_prompt: str, user_data: object, max_tokens: int = 900) -> dict[str, object]:
-    return await asyncio.to_thread(_request_json, system_prompt, user_data, max_tokens)
+async def request_json(
+    system_prompt: str, user_data: object, max_tokens: int = 900, timeout: int = 20
+) -> dict[str, object]:
+    return await asyncio.to_thread(_request_json, system_prompt, user_data, max_tokens, timeout)

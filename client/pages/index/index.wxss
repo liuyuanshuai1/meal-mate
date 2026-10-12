@@ -50,6 +50,9 @@ swiper-item image {
 }
 .ai-recommend-heading { color: #352d25; font-size: 34rpx; font-weight: 700; }
 .ai-recommend-subtitle { color: #8d806d; font-size: 24rpx; margin-top: 8rpx; }
+.ai-recommend-modes { display: flex; gap: 12rpx; margin-top: 24rpx; }
+.ai-recommend-mode { flex: 1; text-align: center; padding: 13rpx 6rpx; border-radius: 16rpx; background: #f5ead7; color: #755f45; font-size: 24rpx; }
+.ai-recommend-mode.is-active { background: #d45e4b; color: #fff; font-weight: 600; }
 .ai-recommend-input {
   box-sizing: border-box;
   width: 100%;
@@ -91,6 +94,20 @@ swiper-item image {
 .ai-recommend-result-meta { color: #a18e77; font-size: 21rpx; margin-top: 4rpx; }
 .ai-recommend-result-reason { color: #6d6254; font-size: 23rpx; line-height: 34rpx; margin-top: 8rpx; }
 .ai-recommend-arrow { color: #bc9c7b; font-size: 42rpx; margin-left: 12rpx; }
+.ai-explore-results { margin-top: 24rpx; }
+.ai-explore-note { color: #9a876c; font-size: 22rpx; margin-bottom: 14rpx; }
+.ai-explore-card { background: #fff; border: 1rpx solid #eee0c9; border-radius: 18rpx; margin-bottom: 14rpx; overflow: hidden; }
+.ai-explore-summary { display: flex; align-items: center; padding: 22rpx; }
+.ai-explore-summary-body { flex: 1; min-width: 0; }
+.ai-explore-name { color: #352d25; font-size: 29rpx; font-weight: 600; }
+.ai-explore-meta { color: #a18e77; font-size: 21rpx; margin-top: 4rpx; }
+.ai-explore-reason { color: #6d6254; font-size: 23rpx; line-height: 34rpx; margin-top: 8rpx; }
+.ai-explore-detail { border-top: 1rpx solid #f0e7d9; padding: 20rpx 22rpx 24rpx; }
+.ai-explore-section-title { color: #352d25; font-size: 25rpx; font-weight: 600; margin: 8rpx 0 14rpx; }
+.ai-explore-ingredient { display: flex; justify-content: space-between; gap: 20rpx; padding: 8rpx 0; color: #625747; font-size: 23rpx; }
+.ai-explore-missing { margin: 14rpx 0 24rpx; padding: 14rpx 18rpx; border-radius: 12rpx; background: #fff5e5; color: #8a5a25; font-size: 22rpx; line-height: 32rpx; }
+.ai-explore-step { display: flex; gap: 16rpx; color: #625747; font-size: 23rpx; line-height: 36rpx; margin-bottom: 14rpx; }
+.ai-explore-step-number { width: 32rpx; height: 32rpx; line-height: 32rpx; text-align: center; flex-shrink: 0; border-radius: 50%; background: #f4e2c8; color: #8a5a25; font-size: 20rpx; }
 .goods-container{
   display: flex;
   justify-content: space-between;

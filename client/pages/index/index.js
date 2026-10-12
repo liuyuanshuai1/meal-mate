@@ -9,9 +9,12 @@ Page({
     recentFoods: [],
     sharedPlan: null,
     recommendationText: '',
+    recommendationMode: 'menu',
     recommendationLoading: false,
     recommendationItems: [],
-    recommendationMessage: ''
+    recommendationMessage: '',
+    explorationItems: [],
+    expandedExplorationIndex: -1
   },
   onLoad: function() {
     wx.setNavigationBarTitle({
@@ -94,6 +97,22 @@ Page({
   fillRecommendationExample: function(e) {
     this.setData({ recommendationText: e.currentTarget.dataset.text })
   },
+  switchRecommendationMode: function(e) {
+    const mode = e.currentTarget.dataset.mode
+    if ((mode !== 'menu' && mode !== 'explore') || this.data.recommendationLoading) return
+    this.setData({
+      recommendationMode: mode,
+      recommendationItems: [],
+      explorationItems: [],
+      expandedExplorationIndex: -1,
+      recommendationMessage: ''
+    })
+  },
+  toggleExplorationItem: function(e) {
+    const index = Number(e.currentTarget.dataset.index)
+    if (!Number.isInteger(index) || index < 0 || index >= this.data.explorationItems.length) return
+    this.setData({ expandedExplorationIndex: this.data.expandedExplorationIndex === index ? -1 : index })
+  },
   askRecommendation: function() {
     const text = (this.data.recommendationText || '').trim()
     if (text.length < 2) {
@@ -101,16 +120,33 @@ Page({
       return
     }
     if (this.data.recommendationLoading) return
-    this.setData({ recommendationLoading: true, recommendationItems: [], recommendationMessage: '' })
-    return WXAPI.recommendFoods({ text }).then(res => {
+    const explore = this.data.recommendationMode === 'explore'
+    const request = explore ? WXAPI.exploreRecipes : WXAPI.recommendFoods
+    this.setData({
+      recommendationLoading: true,
+      recommendationItems: [],
+      explorationItems: [],
+      expandedExplorationIndex: -1,
+      recommendationMessage: ''
+    })
+    return request({ text }).then(res => {
       if (res.code !== 0) return
       const data = res.data || {}
-      this.setData({
-        recommendationItems: (data.items || []).map(item => Object.assign({}, item, {
-          image_url: normalizeImageUrl(item.image_url)
-        })),
-        recommendationMessage: data.message || ''
-      })
+      if (explore) {
+        this.setData({
+          explorationItems: (data.items || []).map(item => Object.assign({}, item, {
+            missing_text: (item.missing_ingredients || []).join('、')
+          })),
+          recommendationMessage: data.message || ''
+        })
+      } else {
+        this.setData({
+          recommendationItems: (data.items || []).map(item => Object.assign({}, item, {
+            image_url: normalizeImageUrl(item.image_url)
+          })),
+          recommendationMessage: data.message || ''
+        })
+      }
     }).catch(() => {
       wx.showToast({ title: '推荐暂时不可用，请稍后再试', icon: 'none' })
     }).finally(() => this.setData({ recommendationLoading: false }))

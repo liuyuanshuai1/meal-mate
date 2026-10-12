@@ -1,3 +1,4 @@
+from app.models.ai_explore_usage import AiExploreUsage
 from app.models.banner import Banner
 from app.models.dining_group import DiningGroup, DiningGroupMember
 from app.models.dinner_plan import DinnerPlan, DinnerPlanItem
@@ -8,6 +9,7 @@ from app.models.food_category import FoodCategory
 from app.models.user import User
 
 __all__ = [
+    "AiExploreUsage",
     "Banner",
     "DiningGroup",
     "DiningGroupMember",

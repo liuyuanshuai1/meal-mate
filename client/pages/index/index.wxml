@@ -34,12 +34,16 @@
     <view class="ai-recommend">
       <view class="ai-recommend-heading">今晚想吃什么？</view>
       <view class="ai-recommend-subtitle">说说冰箱里有什么，或想吃什么口味</view>
+      <view class="ai-recommend-modes">
+        <view class="ai-recommend-mode {{recommendationMode == 'menu' ? 'is-active' : ''}}" data-mode="menu" bindtap="switchRecommendationMode">菜单里推荐</view>
+        <view class="ai-recommend-mode {{recommendationMode == 'explore' ? 'is-active' : ''}}" data-mode="explore" bindtap="switchRecommendationMode">探索新做法</view>
+      </view>
       <textarea class="ai-recommend-input" placeholder="比如：有番茄和鸡蛋，想吃清淡的，半小时做好" maxlength="200" value="{{recommendationText}}" bindinput="onRecommendationInput" auto-height="true" />
       <view class="ai-recommend-examples">
         <view class="ai-recommend-example" data-text="有番茄和鸡蛋，想吃清淡的" bindtap="fillRecommendationExample">清淡一点</view>
         <view class="ai-recommend-example" data-text="今天有点累，想吃简单快手的菜" bindtap="fillRecommendationExample">简单快手</view>
       </view>
-      <button class="ai-recommend-button" bindtap="askRecommendation" loading="{{recommendationLoading}}" disabled="{{recommendationLoading}}">帮我推荐</button>
+      <button class="ai-recommend-button" bindtap="askRecommendation" loading="{{recommendationLoading}}" disabled="{{recommendationLoading}}">{{recommendationMode == 'explore' ? '探索新做法' : '帮我推荐'}}</button>
       <view class="ai-recommend-message" wx:if="{{recommendationMessage}}">{{recommendationMessage}}</view>
       <view class="ai-recommend-results" wx:if="{{recommendationItems.length > 0}}">
         <view class="ai-recommend-result" wx:for="{{recommendationItems}}" wx:key="food_id" data-id="{{item.food_id}}" bindtap="toDetailsTap">
@@ -50,6 +54,31 @@
             <view class="ai-recommend-result-reason">{{item.reason}}</view>
           </view>
           <view class="ai-recommend-arrow">›</view>
+        </view>
+      </view>
+      <view class="ai-explore-results" wx:if="{{explorationItems.length > 0}}">
+        <view class="ai-explore-note">AI 生成的做法 · 未加入菜单</view>
+        <view class="ai-explore-card" wx:for="{{explorationItems}}" wx:for-item="recipe" wx:for-index="recipeIndex" wx:key="name">
+          <view class="ai-explore-summary" data-index="{{recipeIndex}}" bindtap="toggleExplorationItem">
+            <view class="ai-explore-summary-body">
+              <view class="ai-explore-name">{{recipe.name}}</view>
+              <view class="ai-explore-meta">约 {{recipe.cook_minutes}} 分钟 · {{recipe.servings}} 人份</view>
+              <view class="ai-explore-reason">{{recipe.reason}}</view>
+            </view>
+            <view class="ai-recommend-arrow">{{expandedExplorationIndex == recipeIndex ? '⌃' : '›'}}</view>
+          </view>
+          <view class="ai-explore-detail" wx:if="{{expandedExplorationIndex == recipeIndex}}">
+            <view class="ai-explore-section-title">需要的食材</view>
+            <view class="ai-explore-ingredient" wx:for="{{recipe.ingredients}}" wx:for-item="ingredient" wx:key="name">
+              <text>{{ingredient.name}}</text><text>{{ingredient.amount}}</text>
+            </view>
+            <view class="ai-explore-missing" wx:if="{{recipe.missing_text}}">还需准备：{{recipe.missing_text}}</view>
+            <view class="ai-explore-section-title">做法</view>
+            <view class="ai-explore-step" wx:for="{{recipe.steps}}" wx:for-item="step" wx:for-index="stepIndex" wx:key="*this">
+              <view class="ai-explore-step-number">{{stepIndex + 1}}</view>
+              <view>{{step}}</view>
+            </view>
+          </view>
         </view>
       </view>
     </view>

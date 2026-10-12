@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     wechat_mock_login: bool = Field(default=False, validation_alias="WECHAT_MOCK_LOGIN")
     deepseek_api_key: str = Field(default="", validation_alias="DEEPSEEK_API_KEY")
     deepseek_model: str = Field(default="deepseek-flash", validation_alias="DEEPSEEK_MODEL")
+    ai_explore_daily_limit: int = Field(default=20, ge=1, le=100, validation_alias="AI_EXPLORE_DAILY_LIMIT")
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

@@ -3,12 +3,21 @@ const test = require('node:test')
 
 const wxapiPath = require.resolve('../wxapi/main.js')
 let requestedText = ''
+let exploredText = ''
 require.cache[wxapiPath] = {
   id: wxapiPath, filename: wxapiPath, loaded: true,
   exports: {
     recommendFoods: data => {
       requestedText = data.text
       return Promise.resolve({ code: 0, data: { items: [{ food_id: 7, name: '番茄炒蛋', cook_minutes: 15, reason: '正好用上现有食材' }] } })
+    },
+    exploreRecipes: data => {
+      exploredText = data.text
+      return Promise.resolve({ code: 0, data: { items: [{
+        name: '青椒鸡蛋饼', cook_minutes: 15, servings: 2, reason: '用上现有食材',
+        ingredients: [{ name: '青椒', amount: '1个' }],
+        missing_ingredients: ['面粉'], steps: ['切碎青椒', '拌面糊煎熟']
+      }] } })
     }
   }
 }
@@ -34,4 +43,20 @@ test('home recommendation sends the request and opens the selected recipe', asyn
   assert.equal(page.data.recommendationLoading, false)
   page.toDetailsTap({ currentTarget: { dataset: { id: page.data.recommendationItems[0].food_id } } })
   assert.equal(navigatedUrl, '/pages/goods-details/index?id=7')
+})
+
+test('exploration shows a generated recipe inline without navigating to a menu food', async () => {
+  const page = Object.assign({}, definition, {
+    data: Object.assign({}, definition.data, { recommendationText: '  有青椒和鸡蛋  ' }),
+    setData(update) { Object.assign(this.data, update) }
+  })
+  page.switchRecommendationMode({ currentTarget: { dataset: { mode: 'explore' } } })
+  await page.askRecommendation()
+  assert.equal(exploredText, '有青椒和鸡蛋')
+  assert.equal(page.data.explorationItems[0].missing_text, '面粉')
+  assert.equal(page.data.recommendationItems.length, 0)
+  page.toggleExplorationItem({ currentTarget: { dataset: { index: 0 } } })
+  assert.equal(page.data.expandedExplorationIndex, 0)
+  page.toggleExplorationItem({ currentTarget: { dataset: { index: 0 } } })
+  assert.equal(page.data.expandedExplorationIndex, -1)
 })
