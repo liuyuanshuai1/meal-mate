@@ -79,16 +79,21 @@ Page({
   },
   touchS: function(e) {
     if (e.touches.length == 1) {
-      this.setData({
-        startX: e.touches[0].clientX
-      })
+      this.touchStartX = e.touches[0].clientX
+      this.touchStartY = e.touches[0].clientY
+      this.swipeDirection = null
     }
   },
   touchM: function(e) {
     const index = e.currentTarget.dataset.index
     if (e.touches.length == 1) {
       const moveX = e.touches[0].clientX
-      const disX = this.data.startX - moveX
+      const disX = this.touchStartX - moveX
+      const disY = this.touchStartY - e.touches[0].clientY
+      if (!this.swipeDirection && Math.max(Math.abs(disX), Math.abs(disY)) >= 8) {
+        this.swipeDirection = Math.abs(disX) > Math.abs(disY) ? 'horizontal' : 'vertical'
+      }
+      if (this.swipeDirection !== 'horizontal') return
       const delBtnWidth = this.data.delBtnWidth
       let left = ""
       if (disX <= 0) {
@@ -102,10 +107,11 @@ Page({
     }
   },
   touchE: function(e) {
+    if (this.swipeDirection !== 'horizontal') return
     const index = e.currentTarget.dataset.index
     if (e.changedTouches.length == 1) {
       const endX = e.changedTouches[0].clientX
-      const disX = this.data.startX - endX
+      const disX = this.touchStartX - endX
       const delBtnWidth = this.data.delBtnWidth
       const left = disX > delBtnWidth / 2 ? "margin-left:-" + delBtnWidth + "px" : "margin-left:0px"
       if (index !== "" && index != null) {

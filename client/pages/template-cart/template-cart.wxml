@@ -11,7 +11,7 @@
         <view class="edit-btn" hidden="{{!saveHidden}}" bindtap="editTap">编辑</view>
         <view class="edit-btn" hidden="{{saveHidden}}" bindtap="saveTap">完成</view>
     </view>
-    <view class="goodsList {{saveHidden ? 'with-reservation' : ''}}">
+    <view class="goodsList">
         <view class="a-gooods" wx:for="{{list}}" wx:for-index="foodIndex" wx:key="cartKey" >
             <view class="a-goods-conts {{item.active? 'active':''}}" bindtap="selectTap" bindtouchstart="touchS" bindtouchmove="touchM" bindtouchend="touchE" data-index="{{foodIndex}}"    style="{{item.left}}">
                 <view class="goods-info">

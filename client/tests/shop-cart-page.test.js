@@ -14,19 +14,31 @@ test('updates only the swiped row during touch move', () => {
   const updates = []
   const page = Object.assign({}, pageDefinition, {
     data: {
-      startX: 200,
       delBtnWidth: 120,
       goodsList: { saveHidden: true, list: [{ left: '' }] }
     },
     setData: update => updates.push(update)
   })
 
+  page.touchS({ touches: [{ clientX: 200, clientY: 200 }] })
   page.touchM({
     currentTarget: { dataset: { index: 0 } },
-    touches: [{ clientX: 150 }]
+    touches: [{ clientX: 150, clientY: 202 }]
   })
 
   assert.deepEqual(updates, [{ 'goodsList.list[0].left': 'margin-left:-50px' }])
+})
+
+test('vertical swipes leave the cart row alone so the page can scroll', () => {
+  const updates = []
+  const page = Object.assign({}, pageDefinition, {
+    data: { delBtnWidth: 120, goodsList: { list: [{ left: '' }] } },
+    setData: update => updates.push(update)
+  })
+  page.touchS({ touches: [{ clientX: 200, clientY: 200 }] })
+  page.touchM({ currentTarget: { dataset: { index: 0 } }, touches: [{ clientX: 196, clientY: 140 }] })
+  page.touchE({ currentTarget: { dataset: { index: 0 } }, changedTouches: [{ clientX: 196, clientY: 140 }] })
+  assert.deepEqual(updates, [])
 })
 
 test('changes the selected dish quantity and saves the new total', () => {
