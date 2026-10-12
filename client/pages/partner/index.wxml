@@ -13,6 +13,11 @@
     </view>
     <button wx:if="{{group.members.length < 2}}" class="primary" open-type="share">邀请饭搭子</button>
     <view wx:else class="ready">两个人到齐啦</view>
+    <view class="reminder" wx:if="{{group.members.length === 2 && reminderTemplateId}}">
+      <view class="reminder-title">下单提醒</view>
+      <view class="reminder-tip">对方下单后，微信会提醒你一次；在小程序首页也能看到未读菜单。</view>
+      <button class="reminder-button" bindtap="subscribeToReminders">订阅下次下单提醒</button>
+    </view>
   </view>
 
   <view class="empty" wx:elif="{{!loading}}">

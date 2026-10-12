@@ -20,6 +20,8 @@ class Settings(BaseSettings):
     tz: str = Field(default="Asia/Shanghai", validation_alias="TZ")
     wechat_app_id: str = Field(default="", validation_alias="WECHAT_APP_ID")
     wechat_app_secret: str = Field(default="", validation_alias="WECHAT_APP_SECRET")
+    wechat_dinner_plan_template_id: str = Field(default="", validation_alias="WECHAT_DINNER_PLAN_TEMPLATE_ID")
+    wechat_dinner_plan_template_fields: str = Field(default="", validation_alias="WECHAT_DINNER_PLAN_TEMPLATE_FIELDS")
     token_secret: str = Field(default="change-me-in-production", validation_alias="TOKEN_SECRET")
     token_ttl_days: int = Field(default=30, validation_alias="TOKEN_TTL_DAYS")
     admin_token: str = Field(default="", validation_alias="ADMIN_TOKEN")

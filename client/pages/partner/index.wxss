@@ -13,3 +13,8 @@
 .primary { margin-top: 32rpx; color: #fff; background: #e9564f; border-radius: 48rpx; font-size: 28rpx; }
 .primary::after, .sync-name::after, .save-name::after { border: 0; }
 .ready { margin-top: 36rpx; color: #43864a; text-align: center; }
+.reminder { margin-top: 28rpx; padding-top: 28rpx; border-top: 1rpx solid #eee0c0; }
+.reminder-title { color: #352d25; font-size: 28rpx; font-weight: 600; }
+.reminder-tip { margin: 10rpx 0 20rpx; color: #938774; font-size: 24rpx; line-height: 38rpx; }
+.reminder-button { margin: 0; color: #e64340; background: #fff1ed; border-radius: 40rpx; font-size: 26rpx; }
+.reminder-button::after { border: 0; }

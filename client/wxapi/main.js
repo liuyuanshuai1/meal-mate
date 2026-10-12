@@ -124,6 +124,7 @@ module.exports = {
   redeemFeedingReward: (data) => withMessage(authorizedRequest('/feeding-values/redeem', 'post', data)),
   dinnerPlanCurrent: () => withMessage(authorizedRequest('/dinner-plans/current', 'get').then(adaptDinnerPlanResponse)),
   dinnerPlansUpcoming: () => withMessage(authorizedRequest('/dinner-plans/upcoming', 'get').then(adaptDinnerPlansResponse)),
+  dinnerPlanNotificationConfig: () => authorizedRequest('/dinner-plans/notification-config', 'get'),
   createDinnerPlan: (data) => withMessage(authorizedRequest('/dinner-plans', 'post', data).then(adaptDinnerPlanResponse)),
   getDinnerPlan: (id) => withMessage(authorizedRequest('/dinner-plans/' + id, 'get').then(adaptDinnerPlanResponse)),
   markDinnerPlanSeen: (id) => withMessage(authorizedRequest('/dinner-plans/' + id + '/seen', 'post')),

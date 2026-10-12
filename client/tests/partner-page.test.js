@@ -6,7 +6,11 @@ const test = require('node:test')
 const source = fs.readFileSync(path.join(__dirname, '../pages/partner/index.js'), 'utf8')
 const pageBody = source.slice(source.indexOf('Page({') + 6, source.lastIndexOf('})'))
 const calls = []
-const wxStub = { showToast() {}, showLoading() {}, hideLoading() {} }
+let subscriptionRequest = null
+const wxStub = {
+  showToast() {}, showLoading() {}, hideLoading() {},
+  requestSubscribeMessage(options) { subscriptionRequest = options }
+}
 const apiStub = {
   updateDiningGroupName: payload => {
     calls.push(payload)
@@ -58,4 +62,16 @@ test('edits the current user and partner names independently', async () => {
   assert.equal(calls[1].nickname, '搭子新名字')
   assert.equal(instance.data.group.members[0].editName, '我的新名字')
   assert.equal(instance.data.group.members[1].editName, '搭子新名字')
+})
+
+test('asks WeChat for a one-time reminder only after a direct tap', () => {
+  subscriptionRequest = null
+  const instance = createPageData()
+  instance.data.reminderTemplateId = 'template-id'
+  instance.subscribeToReminders()
+  assert.deepEqual(subscriptionRequest.tmplIds, ['template-id'])
+  instance.data.reminderTemplateId = ''
+  subscriptionRequest = null
+  instance.subscribeToReminders()
+  assert.equal(subscriptionRequest, null)
 })

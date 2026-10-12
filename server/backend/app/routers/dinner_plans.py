@@ -2,11 +2,13 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.auth import get_current_user
+from app.core.config import get_settings
 from app.core.database import get_db
 from app.core.response import ok
 from app.models.dinner_plan import DinnerPlan
 from app.models.user import User
 from app.schemas.dinner_plan import DinnerPlanCreate, DinnerPlanItemOut, DinnerPlanOut
+from app.services.dinner_plan_notifications import notification_enabled, send_plan_notification
 from app.services.dinner_plan_service import DinnerPlanService
 
 router = APIRouter(prefix="/dinner-plans", tags=["dinner-plans"])
@@ -53,13 +55,22 @@ async def upcoming_plans(
     return ok([plan_out(plan, user.id) for plan in plans])
 
 
+@router.get("/notification-config")
+async def notification_config(user: User = Depends(get_current_user)) -> dict[str, object]:
+    settings = get_settings()
+    return ok({"template_id": settings.wechat_dinner_plan_template_id if notification_enabled(settings) else ""})
+
+
 @router.post("")
 async def create_plan(
     payload: DinnerPlanCreate,
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, object]:
-    return ok(plan_out(await DinnerPlanService.create(db, user, payload), user.id))
+    plan = await DinnerPlanService.create(db, user, payload)
+    result = plan_out(plan, user.id)
+    await send_plan_notification(plan, str(result["creator_name"]))
+    return ok(result)
 
 
 @router.get("/{plan_id}")
