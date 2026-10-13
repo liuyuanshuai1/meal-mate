@@ -12,7 +12,7 @@ from app.models.eat_record import EatRecord, EatRecordItem
 from app.models.feeding_value import FeedingValueEntry
 from app.models.food import Food
 from app.models.user import User
-from app.schemas.dinner_plan import DinnerPlanCreate
+from app.schemas.dinner_plan import DinnerPlanCreate, DinnerPlanUpdate
 from app.services.dining_group_service import DiningGroupService
 
 
@@ -162,6 +162,63 @@ class DinnerPlanService:
     async def get(db: AsyncSession, user_id: int, plan_id: int) -> DinnerPlan:
         membership = await DiningGroupService.require_membership(db, user_id)
         return await DinnerPlanService._get_in_group(db, membership.group_id, plan_id)
+
+    @staticmethod
+    async def update(db: AsyncSession, user: User, plan_id: int, payload: DinnerPlanUpdate) -> DinnerPlan:
+        membership = await DiningGroupService.require_membership(db, user.id)
+        await db.scalar(select(DiningGroup.id).where(DiningGroup.id == membership.group_id).with_for_update())
+        plan = await DinnerPlanService._get_in_group(db, membership.group_id, plan_id)
+        if plan.status != "pending":
+            raise AppException(40001, "只能修改待吃的菜单")
+        food_ids = [item.food_id for item in payload.items]
+        if len(set(food_ids)) != len(food_ids):
+            raise AppException(40001, "同一道菜请调整份数，不要重复添加")
+
+        cook_ids = {item.cook_user_id for item in payload.items}
+        cooks = (await db.scalars(
+            select(DiningGroupMember).options(joinedload(DiningGroupMember.user)).where(
+                DiningGroupMember.group_id == membership.group_id,
+                DiningGroupMember.user_id.in_(cook_ids),
+            )
+        )).all()
+        cook_map = {member.user_id: member for member in cooks}
+        if len(cook_map) != len(cook_ids):
+            raise AppException(40001, "请为每道菜选择饭搭子中的做菜人")
+
+        old_items = {item.food_id: item for item in plan.items}
+        new_food_ids = set(food_ids) - set(old_items)
+        foods = (await db.scalars(
+            select(Food).where(Food.id.in_(new_food_ids), Food.is_active.is_(True))
+        )).all() if new_food_ids else []
+        food_map = {food.id: food for food in foods}
+        if len(food_map) != len(new_food_ids):
+            raise AppException(40004, "新增的菜品不存在或已下架")
+
+        next_items = []
+        for choice in payload.items:
+            item = old_items.get(choice.food_id)
+            if item is None:
+                food = food_map[choice.food_id]
+                published = food.recipe_status == "published"
+                item = DinnerPlanItem(
+                    food_id=food.id,
+                    food_name=food.name,
+                    food_image_url=food.image_url,
+                    recipe_cook_minutes=food.cook_minutes if published else None,
+                    recipe_ingredients=food.ingredients if published else [],
+                    recipe_steps=food.recipe_steps if published else [],
+                    feeding_value=food.feeding_value,
+                )
+            item.quantity = choice.quantity
+            item.cook_user_id = choice.cook_user_id
+            cook = cook_map[choice.cook_user_id]
+            item.cook_name = cook.display_name or cook.user.nickname
+            next_items.append(item)
+        plan.items = next_items
+        plan.feeding_total = sum(item.feeding_value * item.quantity for item in next_items)
+        plan.partner_seen_at = None
+        await db.commit()
+        return await DinnerPlanService._get_in_group(db, membership.group_id, plan.id)
 
     @staticmethod
     async def mark_seen(db: AsyncSession, user: User, plan_id: int) -> DinnerPlan:

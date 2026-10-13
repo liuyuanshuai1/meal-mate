@@ -9,8 +9,19 @@
     <view class="headline">{{plan.scheduled_for ? '预约菜单' : '今晚菜单'}}</view>
     <view class="plan-time">{{plan.schedule_text}} · {{plan.items.length}} 道菜</view>
     <view class="cook-note">每道菜的做菜人会分别获得对应投喂值</view>
-    <view class="plan-tabs"><view class="plan-tab {{activeTab == 'menu' ? 'is-active' : ''}}" bindtap="showMenu">菜单与做法</view><view class="plan-tab {{activeTab == 'shopping' ? 'is-active' : ''}}" bindtap="showShoppingList">买菜清单</view></view>
-    <view wx:if="{{activeTab == 'menu'}}">
+    <view class="plan-tabs" wx:if="{{!editing}}"><view class="plan-tab {{activeTab == 'menu' ? 'is-active' : ''}}" bindtap="showMenu">菜单与做法</view><view class="plan-tab {{activeTab == 'shopping' ? 'is-active' : ''}}" bindtap="showShoppingList">买菜清单</view></view>
+    <view wx:if="{{editing}}">
+      <view class="edit-heading">修改这份菜单</view>
+      <view class="edit-food" wx:for="{{editItems}}" wx:key="food_id" wx:for-index="foodIndex">
+        <view class="edit-food-top"><text class="edit-food-name">{{item.food_name}}</text><text class="edit-remove" data-index="{{foodIndex}}" bindtap="removeFood">移除</text></view>
+        <view class="edit-food-row"><text>份数</text><view class="edit-quantity"><text data-index="{{foodIndex}}" data-delta="-1" bindtap="changeQuantity">−</text><text>{{item.quantity}}</text><text data-index="{{foodIndex}}" data-delta="1" bindtap="changeQuantity">＋</text></view></view>
+        <view class="edit-cook-label">谁来做？</view>
+        <view class="edit-cooks"><view class="edit-cook {{item.cook_user_id == member.user_id ? 'is-active' : ''}}" wx:for="{{members}}" wx:for-item="member" wx:key="user_id" data-index="{{foodIndex}}" data-user-id="{{member.user_id}}" bindtap="chooseCook">{{member.nickname}}</view></view>
+      </view>
+      <button class="add-food-button" bindtap="openFoodPicker">＋ 加一道菜</button>
+      <view class="edit-actions"><button class="plain" bindtap="cancelEdit" disabled="{{submitting}}">取消</button><button class="primary" bindtap="saveEdit" loading="{{submitting}}">保存菜单</button></view>
+    </view>
+    <view wx:elif="{{activeTab == 'menu'}}">
     <view class="plan-food" wx:for="{{plan.items}}" wx:key="id">
       <view class="food" data-id="{{item.id}}" bindtap="toggleRecipe">
         <image class="food-image" src="{{item.food_image_url}}" mode="aspectFill"></image>
@@ -42,7 +53,15 @@
       <view class="shopping-note" wx:if="{{missingRecipes.length > 0}}">{{missingRecipesText}} 暂无做法和食材，请单独确认。</view>
       <view class="shopping-hint">用量按菜单份数合并，采购前可按实际人数调整。</view>
     </view>
+    <view wx:if="{{!editing}}"><button class="edit-main-button" bindtap="beginEdit">修改菜单 · 增删菜品</button>
     <button class="primary" bindtap="completePlan" loading="{{submitting}}">吃完啦</button>
-    <button class="plain" bindtap="cancelPlan" disabled="{{submitting}}">取消这份菜单</button>
+    <button class="plain" bindtap="cancelPlan" disabled="{{submitting}}">取消这份菜单</button></view>
+  </view>
+  <view class="food-picker-mask" wx:if="{{foodPickerOpen}}" bindtap="closeFoodPicker">
+    <view class="food-picker" catchtap="noop">
+      <view class="food-picker-heading"><text>加一道菜</text><text bindtap="closeFoodPicker">关闭</text></view>
+      <input class="food-picker-search" placeholder="搜索菜单中的菜" value="{{foodSearch}}" bindinput="searchFoods" />
+      <scroll-view scroll-y class="food-picker-list"><view class="food-picker-item" wx:for="{{filteredFoods}}" wx:key="id" data-id="{{item.id}}" bindtap="addFood"><text>{{item.name}}</text><text>＋</text></view><view class="shopping-empty" wx:if="{{filteredFoods.length == 0}}">没有找到菜品</view></scroll-view>
+    </view>
   </view>
 </view>

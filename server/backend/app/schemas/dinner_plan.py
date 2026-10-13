@@ -14,6 +14,10 @@ class DinnerPlanCreate(BaseModel):
     scheduled_for: datetime | None = None
 
 
+class DinnerPlanUpdate(BaseModel):
+    items: list[DinnerPlanItemCreate] = Field(min_length=1, max_length=30)
+
+
 class DinnerPlanItemOut(BaseModel):
     id: int
     food_id: int

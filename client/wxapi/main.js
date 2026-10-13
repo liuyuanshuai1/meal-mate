@@ -127,6 +127,7 @@ module.exports = {
   dinnerPlanNotificationConfig: () => authorizedRequest('/dinner-plans/notification-config', 'get'),
   createDinnerPlan: (data) => withMessage(authorizedRequest('/dinner-plans', 'post', data).then(adaptDinnerPlanResponse)),
   getDinnerPlan: (id) => withMessage(authorizedRequest('/dinner-plans/' + id, 'get').then(adaptDinnerPlanResponse)),
+  updateDinnerPlan: (id, data) => withMessage(authorizedRequest('/dinner-plans/' + id, 'put', data).then(adaptDinnerPlanResponse)),
   markDinnerPlanSeen: (id) => withMessage(authorizedRequest('/dinner-plans/' + id + '/seen', 'post')),
   completeDinnerPlan: (id) => withMessage(authorizedRequest('/dinner-plans/' + id + '/complete', 'post')),
   cancelDinnerPlan: (id) => withMessage(authorizedRequest('/dinner-plans/' + id + '/cancel', 'post')),

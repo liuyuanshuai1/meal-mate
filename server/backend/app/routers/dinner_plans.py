@@ -7,7 +7,7 @@ from app.core.database import get_db
 from app.core.response import ok
 from app.models.dinner_plan import DinnerPlan
 from app.models.user import User
-from app.schemas.dinner_plan import DinnerPlanCreate, DinnerPlanItemOut, DinnerPlanOut
+from app.schemas.dinner_plan import DinnerPlanCreate, DinnerPlanItemOut, DinnerPlanOut, DinnerPlanUpdate
 from app.services.dinner_plan_notifications import notification_enabled, send_plan_notification
 from app.services.dinner_plan_service import DinnerPlanService
 
@@ -78,6 +78,16 @@ async def get_plan(
     plan_id: int, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)
 ) -> dict[str, object]:
     return ok(plan_out(await DinnerPlanService.get(db, user.id, plan_id), user.id))
+
+
+@router.put("/{plan_id}")
+async def update_plan(
+    plan_id: int,
+    payload: DinnerPlanUpdate,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, object]:
+    return ok(plan_out(await DinnerPlanService.update(db, user, plan_id, payload), user.id))
 
 
 @router.post("/{plan_id}/seen")

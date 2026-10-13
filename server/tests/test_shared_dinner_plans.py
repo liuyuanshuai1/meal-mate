@@ -220,3 +220,51 @@ async def test_login_reuses_wechat_user(client: AsyncClient) -> None:
     _, second_id = await login(client, "same-code")
 
     assert first_id == second_id
+
+
+@pytest.mark.asyncio
+async def test_both_diners_can_edit_pending_menu_items(
+    client: AsyncClient, admin_headers: dict[str, str]
+) -> None:
+    owner, owner_id = await login(client, "edit-owner")
+    partner, partner_id = await login(client, "edit-partner")
+    outsider, _ = await login(client, "edit-outsider")
+    group = (await client.post("/api/dining-groups", json={}, headers=owner)).json()["data"]
+    await client.post("/api/dining-groups/join", json={"invite_token": group["invite_token"]}, headers=partner)
+    first = (await client.post(
+        "/api/foods", json={"name": "番茄炒蛋", "feeding_value": 10}, headers=admin_headers
+    )).json()["data"]
+    second = (await client.post(
+        "/api/foods", json={"name": "米饭", "feeding_value": 3}, headers=admin_headers
+    )).json()["data"]
+    third = (await client.post(
+        "/api/foods", json={"name": "炒青菜", "feeding_value": 5}, headers=admin_headers
+    )).json()["data"]
+    booked = (await client.post("/api/dinner-plans", json={
+        "scheduled_for": (now_tz() + timedelta(days=2)).isoformat(),
+        "items": [
+            {"food_id": first["id"], "quantity": 1, "cook_user_id": owner_id},
+            {"food_id": second["id"], "quantity": 1, "cook_user_id": owner_id},
+        ],
+    }, headers=owner)).json()["data"]
+    plan_id = booked["id"]
+    payload = {"items": [
+        {"food_id": first["id"], "quantity": 2, "cook_user_id": partner_id},
+        {"food_id": third["id"], "quantity": 1, "cook_user_id": owner_id},
+    ]}
+    denied = (await client.put(f"/api/dinner-plans/{plan_id}", json=payload, headers=outsider)).json()
+    assert denied["code"] != 0
+    edited = (await client.put(f"/api/dinner-plans/{plan_id}", json=payload, headers=partner)).json()["data"]
+    assert [item["food_name"] for item in edited["items"]] == ["番茄炒蛋", "炒青菜"]
+    assert edited["feeding_total"] == 25
+    assert edited["items"][0]["cook_user_id"] == partner_id
+    assert edited["items"][0]["id"] == booked["items"][0]["id"]
+    assert (await client.get(f"/api/dinner-plans/{plan_id}", headers=owner)).json()["data"]["items"] == edited["items"]
+    assert (await client.get("/api/dinner-plans/upcoming", headers=owner)).json()["data"][0]["feeding_total"] == 25
+    duplicate = (await client.put(f"/api/dinner-plans/{plan_id}", json={"items": [
+        payload["items"][0], payload["items"][0]
+    ]}, headers=owner)).json()
+    assert duplicate["code"] == 40001
+    await client.post(f"/api/dinner-plans/{plan_id}/complete", headers=owner)
+    completed = (await client.put(f"/api/dinner-plans/{plan_id}", json=payload, headers=partner)).json()
+    assert completed["code"] == 40001

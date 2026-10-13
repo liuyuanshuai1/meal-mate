@@ -63,3 +63,35 @@ test('the shopping tab opens the chosen booking and marks the partner reminder r
   assert.equal(seenPlanId, 9)
   assert.equal(page.data.plan.notification_unread, false)
 })
+
+test('an existing menu can add and remove dishes before saving for both diners', async () => {
+  const api = require.cache[wxapiPath].exports
+  let saved
+  api.diningGroupCurrent = () => Promise.resolve({ code: 0, data: { members: [
+    { user_id: 1, nickname: '小黄' }, { user_id: 2, nickname: '小白' }
+  ] } })
+  api.foods = () => Promise.resolve({ code: 0, data: [
+    { id: 8, name: '米饭', pic: '', feeding_value: 3 }
+  ] })
+  api.updateDinnerPlan = (id, payload) => {
+    saved = { id, payload }
+    return Promise.resolve({ code: 0, data: planData })
+  }
+  const page = Object.assign({}, dinnerPlanPage, {
+    data: Object.assign({}, dinnerPlanPage.data, { plan: planData }),
+    setData(update) { Object.assign(this.data, update) },
+    loadPlan() { return Promise.resolve() }
+  })
+  page.beginEdit()
+  await Promise.resolve()
+  page.removeFood({ currentTarget: { dataset: { index: 0 } } })
+  await page.openFoodPicker()
+  page.addFood({ currentTarget: { dataset: { id: 8 } } })
+  page.chooseCook({ currentTarget: { dataset: { index: 0, userId: 2 } } })
+  page.changeQuantity({ currentTarget: { dataset: { index: 0, delta: 1 } } })
+  await page.saveEdit()
+  assert.deepEqual(saved, { id: 9, payload: { items: [
+    { food_id: 8, quantity: 2, cook_user_id: 2 }
+  ] } })
+  assert.equal(page.data.editing, false)
+})

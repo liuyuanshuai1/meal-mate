@@ -34,3 +34,28 @@
 .earned-total { margin: -14rpx 0 24rpx; text-align: right; color: #9b705c; font-size: 23rpx; line-height: 34rpx; }
 .primary, .secondary { color: #fff; background: #e9564f; border-radius: 48rpx; font-size: 29rpx; }
 .plain { margin-top: 18rpx; color: #817767; background: transparent; border: 1rpx solid #e7dcc4; border-radius: 48rpx; }
+.edit-main-button, .add-food-button { margin: 24rpx 0; border: 1rpx solid #d9b9a2; border-radius: 48rpx; background: #fff; color: #b55243; font-size: 27rpx; }
+.edit-heading { margin: 26rpx 0 10rpx; color: #352d25; font-size: 29rpx; font-weight: 600; }
+.edit-food { padding: 20rpx 0; border-bottom: 1rpx solid #eee0c0; }
+.edit-food-top, .edit-food-row { display: flex; align-items: center; justify-content: space-between; }
+.edit-food-name { color: #352d25; font-size: 27rpx; font-weight: 600; }
+.edit-remove { padding: 8rpx 0 8rpx 24rpx; color: #b55243; font-size: 24rpx; }
+.edit-food-row { margin-top: 18rpx; color: #817767; font-size: 25rpx; }
+.edit-quantity { display: flex; align-items: center; border: 1rpx solid #e7dcc4; border-radius: 12rpx; overflow: hidden; }
+.edit-quantity text { min-width: 68rpx; padding: 10rpx 0; text-align: center; color: #352d25; }
+.edit-quantity text:first-child, .edit-quantity text:last-child { background: #f7eedf; color: #b55243; }
+.edit-cook-label { margin-top: 18rpx; color: #817767; font-size: 24rpx; }
+.edit-cooks { display: flex; gap: 12rpx; margin-top: 10rpx; }
+.edit-cook { padding: 10rpx 24rpx; border: 1rpx solid #e7dcc4; border-radius: 30rpx; color: #817767; font-size: 23rpx; }
+.edit-cook.is-active { border-color: #d45e4b; background: #fff0e8; color: #b55243; }
+.edit-actions { display: flex; gap: 16rpx; }
+.edit-actions button { flex: 1; margin: 0; }
+.food-picker-mask { position: fixed; inset: 0; z-index: 20; display: flex; align-items: flex-end; background: rgba(30, 25, 20, .45); }
+.food-picker { width: 100%; max-height: 75vh; padding: 28rpx; box-sizing: border-box; border-radius: 28rpx 28rpx 0 0; background: #fffaf0; }
+.food-picker-heading, .food-picker-item { display: flex; align-items: center; justify-content: space-between; }
+.food-picker-heading { color: #352d25; font-size: 30rpx; font-weight: 600; }
+.food-picker-heading text:last-child { color: #b55243; font-size: 24rpx; font-weight: 400; }
+.food-picker-search { margin: 22rpx 0; padding: 18rpx 22rpx; border: 1rpx solid #e7dcc4; border-radius: 14rpx; background: #fff; font-size: 25rpx; }
+.food-picker-list { height: 54vh; }
+.food-picker-item { padding: 22rpx 6rpx; border-bottom: 1rpx solid #eee0c0; color: #352d25; font-size: 26rpx; }
+.food-picker-item text:last-child { color: #b55243; font-size: 34rpx; }
